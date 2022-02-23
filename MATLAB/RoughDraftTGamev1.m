@@ -6,42 +6,22 @@ function [subjData] = TGamev1(subjID, testMode)
 %
 % DATA:
 %
-% Stimulus Data: % Programming this is confusing me
-% 'Player 1' = Democrat, 19, 80%
-% 'Player 4'= Republican, 19, 80%
-% 'Player 7' = NP, 19, 80%
-% 'Player 2' = Democrat, 20, 50%
-% 'Player 5' = Republican, 20, 50%
-% 'PLayer 9' = NP, 20, 50%
-% 'Player 3' = Democrat, 21, 20%
-% 'Player 6' = Republican, 21, 20%
-% 'Player 8' = NP, 21, 20%
 % 
 % POLITICAL ORIENTATION DATA: 
 % 'Democrat' = 0
 % 'Republican' = 1
-% 'NP' = 2
 %
 % AGE DATA: 
 % 'Age' = 
 	% '19' 
 	% '20'
 	% '21'
-
-    
-% 
-% RECIPROCITY DATA: % Do I need this or is this just in randomization? 
-% 'Recp' = 
-% '80%' 
-% '50%'
-% '20%'
 %
-% Partner Choice: MIGHT DO DIFFERENT KEYPRESSES 
-% $1 = 'a'
-% $3 = 's'
-% $5 = 'd'
-% $7 = 'j'
-% $9 = 'k'
+% Partner Choice: 
+% $1 = 'f'
+% $2= 'g'
+% $3 = 'h'
+% $4 = 'j'
 %
 % set up defaults 
 Screen('Preference', 'SkipSyncTests', 1); %skips sync tests for monitor relay timing (for use during testing w/ dual monitor)
@@ -65,7 +45,6 @@ else
 end
 
 % Define Experiment Window
-% do we need to use a Blend Function? 
 % Screen('BlendFunction', wind, GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 blk = BlackIndex(wind);
 wht = WhiteIndex(wind);
@@ -79,8 +58,7 @@ Screen(wind,'Flip');
 % Random Number Generator
 rng('shuffle');
 
-%COPY AND PASTED FROM BST
-
+%File path set-up
 if ismac
     homepath = [filesep 'Volumes' filesep 'research' filesep 'AHSS Psychology' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'task' filesep];
 end
@@ -89,31 +67,76 @@ if IsWin
     homepath = ['S:' filesep 'Projects' filesep 'PTR' filesep 'task' filesep];
 end
 
-% imgpath = 
-% outputpath = 
+imgpath_blackfemale = ['stimuli' filesep 'blackfemaleFaces'];
+imgpath_blackmale = ['stimuli' filesep 'blackmaleFaces'];
+imgpath_whitefemale = ['stimuli' filesep 'whitefemaleFaces'];
+imgpath_whitemale = ['stimuli' filesep 'whitemaleFaces'];
+outputpath = ['output' filesep];
+
 
 % Basic Keyboard Stuff
-KbName('UnifyKeyNames'); 
+KbName('UnifyKeyNames'); %for OS X
 
-% Response Keys
-resp_keys = {'a', 's', 'd', 'j', 'k'}; %For $1, $3, $5, $7, & $9
+%Define Response Keys
+resp_keys = {'f', 'g', 'h', 'j'}; %For $1, $2, $3, $4
 resp_key_codes = KbName(resp_keys);
-space_key_code = KbName('space');
 esc_key_code = KbName('ESCAPE');
-trig_key_code = KbName('Return');
+trig_key_code = KbName('Return'); %experimenter advance key
+%Abort key
+[~, ~, keyCode] = KbCheck;
+if keyCode(KbName('~')) == 1
+    break
+end
 
 % Number of Stimuli to Choose From
-% numTotalStim = ____
+numTotalStim = 8;
 
-% Number of Stimuli (per groups) 
+% Number of Stimuli (per groups)
+% Number of stimuli groups = 2 (R/D)? 
+if testMode == 1
+    numTGameStim = [];
+    numTGameBlocks = [];
+else
+    numTGameStim = [];
+    numTGameBlocks = [];
+    HideCursor;
+end
 
-% Setup Variable Columns for Data Table 
+nT = numTGameBlocks*numTGameStim;
 
-% Create Data Table 
+% # of trials in the task during testmode
+if testMode == 1
+    nT = 80;
+else
+    nT =[];
+end 
 
-% Path to the file on disk
+% set up trial order 
+
+%Create variables for partner matrix 
+blockNum = nan(nT,1);
+trialNum = nan(nT,1);
+cumTrialNum = nan(nT,1);
+stimulus = cell(nT,1);
+stimulusRace = nan(nT,1);
+stimulusGender = nan(nT,1);
+stimulusPA = nan(nT,1);
+
+%Create Data Table 
 
 % Capture Keypresses & don't affect the editor/console 
+if testMode == 1
+    ListenChar(2);
+end
+
+%Load Faces
+
+%Blocks are (R/D) = 1, (good/bad) = 2, (R/Good & R/bad) = 3, (D/Good &
+%D/bad) = 4, (R/black & R/white) = 5, (D/black & D/white) = 6, (R/female &
+%R/male) = 7, (D/female & D/male) = 8
+%SWITCH ASSOC?
+
+% Path to the file disk
 
 WaitSecs(2)
 sca
