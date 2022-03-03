@@ -65,16 +65,6 @@ end
 %     homepath = ['S:' filesep 'Projects' filesep 'PTR' filesep 'task' filesep];
 % end
 
-imgpath_blackfemale = ['stimuli' filesep 'blackfemaleFaces'];
-imgpath_blackmale = ['stimuli' filesep 'blackmaleFaces'];
-imgpath_whitefemale = ['stimuli' filesep 'whitefemaleFaces'];
-imgpath_whitemale = ['stimuli' filesep 'whitemaleFaces'];
-outputpath = ['output' filesep];
-
-% relative path to images
-relative_image_path = '../stimuli/';
-fnames = dir([relative_image_path '*.jpg']);
-
 % Basic Keyboard Stuff
 KbName('UnifyKeyNames'); %for OS X
 
@@ -150,12 +140,32 @@ partner_matrix = partner_matrix(randperm(numPartners),:);
 % 1 1 female black
 %}
 
-% NEXT STEP: load partner images given partner matrix content
-for partner = 1:numPartners
-    % need to identify who we're looking for in each row
-    % load an image (and then not repeat that image loading again later)
+% LOAD PARTNER IMAGES
+
+% relative path to images
+relative_image_path = '../stimuli/';
+fnames = dir([relative_image_path '*.jpg']);
+outputpath = ['output' filesep];
+
+% ONE OPTION: proabably not right but I think I have somewhat of the right
+% idea
+DrawFormattedText(wind, 'Loading stimuli...', 'center', 'center', blk);
+Screen(wind, 'Flip')
+for partner = 1:numPartners,  2:numPartners
+    image = fnames(partner_matrix(1:2,3:4)(length(image)), numPartners));
 end
 
+for partner = 3:numPartners, 4:numPartners
+    image = fnames(partner_matrix(3:4,3:4)(length(image)), numPartners));
+end
+
+for partner = 5:numPartners, 6:numPartners
+    image = fnames(partner_matrix(5:6,3:4)(length(image)), numPartners));
+end
+
+for partner = 7:numPartners, 8:numPartners
+    image = fnames(partner_matrix(7:8,3:4)(length(image)), numPartners));
+end
 
 % Number of trials per partner in Phase 1 (first mover)
 if runfullversion == 1
@@ -169,28 +179,21 @@ nT_phase2 = nT_phase1;
 
 % set up trial order 
 
-%Create variables for partner matrix 
-blockNum = nan(nT,1);
+%Create variables for variable columns for data table 
 trialNum = nan(nT,1);
 cumTrialNum = nan(nT,1);
-stimulus = cell(nT,1);
-stimulusRace = nan(nT,1);
-stimulusGender = nan(nT,1);
-stimulusPA = nan(nT,1);
+image = cell(nT,1);
+shared = nan(nT,1);
+partnerChoice = nan(nT,1);
+received = nan(nT,1);
 
 %Create Data Table 
+subjData.data = table(trialNum, cumTrialNum, image, shared, partnerChoice, received);
 
 % Capture Keypresses & don't affect the editor/console 
 if runfullversion == 1
     ListenChar(2);
 end
-
-%Load Faces
-
-%Blocks are (R/D) = 1, (good/bad) = 2, (R/Good & R/bad) = 3, (D/Good &
-%D/bad) = 4, (R/black & R/white) = 5, (D/black & D/white) = 6, (R/female &
-%R/male) = 7, (D/female & D/male) = 8
-%SWITCH ASSOC?
 
 % Path to the file disk
 
