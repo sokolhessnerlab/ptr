@@ -36,7 +36,7 @@ end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Create Experiment Window 
-if runfullversion == 1
+if runfullversion == 0
 	rect=[1600 0 2400 600];
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')),[], rect); % If it test mode, do not hide cursor 
 else
@@ -99,16 +99,13 @@ gender_race_matrix(:,:,3) = [1 0; 1 1];
 gender_race_matrix(:,:,4) = [1 0; 0 0];
 
 % randomly pick out these pairs
-rand_order_gender_race_matrix = randperm(4);
+rand_order_gender_race_index = randperm(4);
 
 % put them in the partner matrix
-partner_matrix(1:2,3:4) = gender_race_matrix(:,:,rand_order_gender_race_matrix(1));
-partner_matrix(3:4,3:4) = gender_race_matrix(:,:,rand_order_gender_race_matrix(2));
-partner_matrix(5:6,3:4) = gender_race_matrix(:,:,rand_order_gender_race_matrix(3));
-partner_matrix(7:8,3:4) = gender_race_matrix(:,:,rand_order_gender_race_matrix(4));
-
-% shuffle the partner matrix
-partner_matrix = partner_matrix(randperm(numPartners),:);
+partner_matrix(1:2,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(1));
+partner_matrix(3:4,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(2));
+partner_matrix(5:6,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(3));
+partner_matrix(7:8,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(4));
 
 %{
 % All possible combos of gender/race that ensure at least one differs
@@ -126,7 +123,7 @@ partner_matrix = partner_matrix(randperm(numPartners),:);
 % 1 0
 % 0 0
 
-% alternative take
+% alternative take (NOT USED)
 % 1 0 female white
 % 0 1 male black
 
@@ -142,30 +139,53 @@ partner_matrix = partner_matrix(randperm(numPartners),:);
 
 % LOAD PARTNER IMAGES
 
+% column 1: political affiliation (0 = Republican, 1 = Democrat)
+% column 2: reciprocation rate (from 0-1)
+% column 3: Gender (1 = F, 0 = M)
+% column 4: Race (1 = Black, 0 = White)
+
+
 % relative path to images
 relative_image_path = '../stimuli/';
 fnames = dir([relative_image_path '*.jpg']);
+fnames_for_loading = fnames;
 outputpath = ['output' filesep];
 
-% ONE OPTION: proabably not right but I think I have somewhat of the right
-% idea
-DrawFormattedText(wind, 'Loading stimuli...', 'center', 'center', blk);
-Screen(wind, 'Flip')
-for partner = 1:numPartners,  2:numPartners
-    image = fnames(partner_matrix(1:2,3:4)(length(image)), numPartners));
+allimages = nan(1718,2444,3,numPartners); % pixels, pixels, RGB, partner
+
+for partner = 1:numPartners
+    if partner_matrix(partner,3) == 1
+        tmp_gender = 'F';
+    elseif partner_matrix(partner,3) == 0
+        tmp_gender = 'M';
+    end
+    
+    if partner_matrix(partner,4) == 1
+        tmp_race = 'B';
+    elseif partner_matrix(partner,4) == 0
+        tmp_race = 'W';
+    end
+    
+    imgtxt = [tmp_race tmp_gender];
+    
+    for image_number = 1:length(fnames_for_loading)
+        if strcmp(imgtxt,fnames_for_loading(image_number).name(5:6))
+            break
+        end
+    end
+    
+    fnames(partner) = fnames_for_loading(image_number);
+    
+    allimages(:,:,:,partner) = imread([relative_image_path fnames(image_number).name]);
+    
+    fnames_for_loading(image_number) = []; % get rid of this image now we've used it. 
 end
 
-for partner = 3:numPartners, 4:numPartners
-    image = fnames(partner_matrix(3:4,3:4)(length(image)), numPartners));
-end
+% shuffle the partner matrix
+shuffle_order = randperm(numPartners);
 
-for partner = 5:numPartners, 6:numPartners
-    image = fnames(partner_matrix(5:6,3:4)(length(image)), numPartners));
-end
-
-for partner = 7:numPartners, 8:numPartners
-    image = fnames(partner_matrix(7:8,3:4)(length(image)), numPartners));
-end
+partner_matrix = partner_matrix(shuffle_order,:);
+allimages = allimages(:,:,:,shuffle_order);
 
 % Number of trials per partner in Phase 1 (first mover)
 if runfullversion == 1
@@ -177,7 +197,10 @@ end
 nT_phase1 = numPartners * nT_per_partner;
 nT_phase2 = nT_phase1;
 
-% set up trial order 
+% Create Interactions Matrix
+% (Rows = trials, columns = partner number, share/keep)
+
+
 
 %Create variables for variable columns for data table 
 trialNum = nan(nT,1);
