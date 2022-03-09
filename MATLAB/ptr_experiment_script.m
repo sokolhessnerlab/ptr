@@ -198,9 +198,9 @@ nT_phase1 = numPartners * nT_per_partner;
 nT_phase2 = nT_phase1;
 
 % Create Interactions Matrix
-% (Rows = trials, columns = partner number, share/keep)
+% (Rows = trials, columns = partner number (1-8), share/keep)
 
-
+% Set-up file to path disk 
 
 %Create variables for variable columns for data table 
 trialNum = nan(nT,1);
@@ -210,6 +210,7 @@ shared = nan(nT,1);
 partnerChoice = nan(nT,1);
 received = nan(nT,1);
 
+
 %Create Data Table 
 subjData.data = table(trialNum, cumTrialNum, image, shared, partnerChoice, received);
 
@@ -218,7 +219,59 @@ if runfullversion == 1
     ListenChar(2);
 end
 
-% Path to the file disk
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Waiting for Experimenter Screen
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Text display
+Screen('FillRect', wind, gry);
+DrawFormattedText(wind, 'Waiting for experimenter...', 'center', 'center', blk);
+Screen(wind, 'Flip');
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            error('Experiment aborted by user!');
+        elseif any (keyCode(trig_key_code))
+            break
+        end
+    end
+end
 
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Instructions
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Define the task instructions (being displayed to participant)
+
+instructStr{1} = ['As a reminder, in the following task, you will be interacting with 8 hypothetical partners. '...
+    'However, please treat these partners as if they were real people you were interacting with.'];
+instructStr{2} = ['It is well known that faces are particularly important for helping us gather social information. '...
+    'For this reason, and to give you a better sense of whom you are interacting with, '...
+    'we will provide you with a picture of your partner, along with additional demographic information.'];
+instructStr{3} = ['In the following task, for each interaction, you will see a picture of your partners face '...
+    'and then choose how much money you want to share with that partner. For each of the partners, you may choose to share $1, $2, $3, or $4.'];
+instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either,'...
+    'share part, all, or none of the money that they recieved back with you.'];
+instructStr{5} = ['Here is an example of an interaction: You see the photo of your partner alongside other attribute information, '...
+    'and decide to share $2 of your money with them. This money will then be tripled (becoming $6). '...
+    'If your partner was fair they would share back $3 with you and keep $3 for themselves. If your partner keeps more than $3 or less than $3, '...
+    'that is a judgement to their character.']; %change this last sentence, want to make sure that they remember who they are dealing with%
+instructStr{6} = ['After your partners decision you will move on to the next partner till you play with all 8 partners.'];
+
+%for loop for these strings - also drawformattedtext
+
+for loopCnt = 1:length(instructStr)
+    DrawFormattedText(wind, 'Instructions: Economic Interactions Task', 'center', rect[], blk); %what is the rect? 
+    DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect[], blk, , , , ); %not sure what numbers to specify 
+    % if end statement connecting images to loop
+end
+    Screen('Flip', wind, [],1);
+    
+    WaitSecs(3);
+    
+    DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect [], blk); %what is the rect? 
+    Screen('Flip', wind);
+    
+    %while loop for aborting 
+    
 WaitSecs(2)
 sca
