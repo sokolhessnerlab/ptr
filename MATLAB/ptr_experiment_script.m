@@ -85,8 +85,11 @@ partner_matrix(1:4,1) = 0; % Republican = 0
 partner_matrix(5:8,1) = 1; % Democrat = 1
 
 % Reciprocity rate
-partner_matrix([1:2 5:6],2) = 0.7; % good partner (high reprocity)
-partner_matrix([3:4 7:8],2) = 0.3; % bad partner (low reprocity)
+goodrate = 0.7;
+badrate = 0.3;
+
+partner_matrix([1:2 5:6],2) = goodrate; % good partner (high reprocity)
+partner_matrix([3:4 7:8],2) = badrate; % bad partner (low reprocity)
 
 
 % Prep gender/race matrix
@@ -187,18 +190,58 @@ shuffle_order = randperm(numPartners);
 partner_matrix = partner_matrix(shuffle_order,:);
 allimages = allimages(:,:,:,shuffle_order);
 
-% Number of trials per partner in Phase 1 (first mover)
-if runfullversion == 1
-    nT_per_partner = 10;
-else
-    nT_per_partner = 2;
-end 
+% % Number of trials per partner in Phase 1 (first mover)
+% if runfullversion == 1
+%     nT_per_partner = 10;
+% else
+%     nT_per_partner = 2;
+% end 
+
+nT_per_partner = 10;
+
 
 nT_phase1 = numPartners * nT_per_partner;
 nT_phase2 = nT_phase1;
 
 % Create Interactions Matrix
-% (Rows = trials, columns = partner number (1-8), share/keep)
+% This matrix will be made up of three matrices
+interaction_matrix_phase1_part1 = repmat(1:8,[1,3])'; % 24 trials, 3 interactions w/ each partner
+interaction_matrix_phase1_part2 = repmat(1:8,[1,4])'; % 36 trials, 4 interactions w/ each partner
+interaction_matrix_phase1_part3 = repmat(1:8,[1,3])'; % 24 trials, 3 interactions w/ each partner
+
+% Placeholder for the share/keep decisions [1 = share, 0 = keep]
+interaction_matrix_phase1_part1(:,2) = nan;
+interaction_matrix_phase1_part2(:,2) = nan;
+interaction_matrix_phase1_part3(:,2) = nan;
+
+% Using the partner rate from the partner matrix, fill in their actions
+for partner = 1:numPartners
+    % first identify which rows are this partner's in each of the matrices
+    index_part1 = find(interaction_matrix_phase1_part1(:,1) == partner);
+    index_part2 = find(interaction_matrix_phase1_part2(:,1) == partner);
+    index_part3 = find(interaction_matrix_phase1_part3(:,1) == partner);
+    
+    % Then, using their rate, fill in their actions in the 3 matrices
+    if partner_matrix(partner,2) == goodrate
+        interaction_matrix_phase1_part1(index_part1,2) = [1 1 0];
+        interaction_matrix_phase1_part2(index_part2,2) = [1 1 1 0];
+        interaction_matrix_phase1_part3(index_part3,2) = [1 1 0];
+    elseif partner_matrix(partner,2) == badrate
+        interaction_matrix_phase1_part1(index_part1,2) = [0 0 1];
+        interaction_matrix_phase1_part2(index_part2,2) = [0 0 0 1];
+        interaction_matrix_phase1_part3(index_part3,2) = [0 0 1];
+    end
+end
+
+% randomly sort each of the component matrices
+interaction_matrix_phase1_part1 = interaction_matrix_phase1_part1(randperm(length(interaction_matrix_phase1_part1)),:);
+interaction_matrix_phase1_part2 = interaction_matrix_phase1_part2(randperm(length(interaction_matrix_phase1_part2)),:);
+interaction_matrix_phase1_part3 = interaction_matrix_phase1_part3(randperm(length(interaction_matrix_phase1_part3)),:);
+
+% Assemble the final matrix: partner number, share [1]/keep [0] decision
+interaction_matrix_phase1 = [interaction_matrix_phase1_part1; 
+                             interaction_matrix_phase1_part2;
+                             interaction_matrix_phase1_part3];
 
 % Set-up file to path disk 
 
