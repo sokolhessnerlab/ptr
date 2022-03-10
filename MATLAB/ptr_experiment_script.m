@@ -253,9 +253,8 @@ instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your
     'share part, all, or none of the money that they recieved back with you.'];
 instructStr{5} = ['Here is an example of an interaction: You see the photo of your partner alongside other attribute information, '...
     'and decide to share $2 of your money with them. This money will then be tripled (becoming $6). '...
-    'If your partner was fair they would share back $3 with you and keep $3 for themselves. If your partner keeps more than $3 or less than $3, '...
-    'that is a judgement to their character.']; %change this last sentence, want to make sure that they remember who they are dealing with%
-instructStr{6} = ['After your partners decision you will move on to the next partner till you play with all 8 partners.'];
+    'Your partner then has the chance to share $3 with you and keep $3 for themsevles, or keep all $6 for themselves.']; %change this last sentence, want to make sure that they remember who they are dealing with%
+instructStr{6} = ['In this phase you will complete a total of 80 interactions 10 with each partner.'];
 
 %for loop for these strings - also drawformattedtext
 
