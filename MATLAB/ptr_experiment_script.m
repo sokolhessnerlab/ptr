@@ -242,6 +242,31 @@ interaction_matrix_phase1_part3 = interaction_matrix_phase1_part3(randperm(lengt
 interaction_matrix_phase1 = [interaction_matrix_phase1_part1; 
                              interaction_matrix_phase1_part2;
                              interaction_matrix_phase1_part3];
+                         
+%Phase 2 matrices made up of 2 matrices (offer patterns)
+interactions_matrix_phase2_part1 = repmat(1:8,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction
+interactions_matrix_phase2_part2 = repmat(1:8,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction 
+
+%Placeholders for offers [$1=1, $2=2, $3=3, $4=4,]
+interactions_matrix_phase2_part1(:,2) = nan;
+interactions_matrix_phase2_part2(:,2) = nan;
+
+%Using the partner matrix, fill in their actions
+for partner = 1:numPartners
+    %what rows are for each partners in each matrix [partner = 1:8]
+    index_phase2_part1 = find(interactions_matrix_phase2_part1(:,1) == partner);
+    index_phase2_part2 = find(interactions_matrix_phase2_part2(:,1) == partner);
+    %fill in actions for offers 
+    interactions_matrix_phase2_part1(index_phase2_part1,2) = [1 2 2 3 4];
+    interactions_matrix_phase2_part2(index_phase2_part2,2) = [1 2 3 3 4];
+end
+    
+%Randomly sort the two matrices 
+interactions_matrix_phase2_part1 = interactions_matrix_phase2_part1(randperm(length(interactions_matrix_phase2_part1)),:);
+interactions_matrix_phase2_part2 = interactions_matrix_phase2_part2(randperm(length(interactions_matrix_phase2_part2)),:);
+
+%Combine two parts (partner number + offers)
+interactions_matrix_phase2 = [interactions_matrix_phase2_part1; interactions_matrix_phase2_part2];
 
 % Set-up file to path disk 
 
