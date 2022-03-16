@@ -259,11 +259,12 @@ for partner = 1:numPartners
     %fill in actions for offers 
     interactions_matrix_phase2_part1(index_phase2_part1,2) = [1 2 2 3 4];
     interactions_matrix_phase2_part2(index_phase2_part2,2) = [1 2 3 3 4];
+    %Now have the offers occur a certain amount of times per partner ($1x2,
+    %$2x3, $3x3, $4x2) - there is an issue with the left side being 1 by 1
+    %and right side being 1 by 5, think I am on the right track
+    interactions_matrix_phase2_part1 = repelem([1 2 2 3 4],[1 1 1 1 1]);
+    interactions_matrix_phase2_part2 = repelem([1 2 3 3 4],[1 1 1 1 1]);
 end
-    
-%Randomly sort the two matrices 
-interactions_matrix_phase2_part1 = interactions_matrix_phase2_part1(randperm(length(interactions_matrix_phase2_part1)),:);
-interactions_matrix_phase2_part2 = interactions_matrix_phase2_part2(randperm(length(interactions_matrix_phase2_part2)),:);
 
 %Combine two parts (partner number + offers)
 interactions_matrix_phase2 = [interactions_matrix_phase2_part1; interactions_matrix_phase2_part2];
