@@ -74,6 +74,11 @@ resp_key_codes = KbName(resp_keys);
 esc_key_code = KbName('ESCAPE'); % Abort key
 trig_key_code = KbName('Return'); % experimenter advance key
 
+% Capture Keypresses & don't affect the editor/console 
+if runfullversion == 1
+    ListenChar(2);
+end
+
 % Number of Partners to interact with
 numPartners = 8; % interact with 8 partners
 
@@ -205,9 +210,9 @@ nT_phase2 = nT_phase1;
 
 % Create Interactions Matrix
 % This matrix will be made up of three matrices
-interaction_matrix_phase1_part1 = repmat(1:8,[1,3])'; % 24 trials, 3 interactions w/ each partner
-interaction_matrix_phase1_part2 = repmat(1:8,[1,4])'; % 36 trials, 4 interactions w/ each partner
-interaction_matrix_phase1_part3 = repmat(1:8,[1,3])'; % 24 trials, 3 interactions w/ each partner
+interaction_matrix_phase1_part1 = repmat(1:numPartners,[1,3])'; % 24 trials, 3 interactions w/ each partner
+interaction_matrix_phase1_part2 = repmat(1:numPartners,[1,4])'; % 36 trials, 4 interactions w/ each partner
+interaction_matrix_phase1_part3 = repmat(1:numPartners,[1,3])'; % 24 trials, 3 interactions w/ each partner
 
 % Placeholder for the share/keep decisions [1 = share, 0 = keep]
 interaction_matrix_phase1_part1(:,2) = nan;
@@ -243,54 +248,73 @@ interaction_matrix_phase1 = [interaction_matrix_phase1_part1;
                              interaction_matrix_phase1_part2;
                              interaction_matrix_phase1_part3];
                          
-%Phase 2 matrices made up of 2 matrices (offer patterns)
-interactions_matrix_phase2_part1 = repmat(1:8,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction
-interactions_matrix_phase2_part2 = repmat(1:8,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction 
+% Phase 2 matrices made up of 2 matrices (offer patterns)
+interaction_matrix_phase2_part1 = repmat(1:numPartners,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction
+interactions_matrix_phase2_part2 = repmat(1:numPartners,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction 
 
-%Placeholders for offers [$1=1, $2=2, $3=3, $4=4,]
-interactions_matrix_phase2_part1(:,2) = nan;
+% Placeholders for offers [$1=1, $2=2, $3=3, $4=4,]
+interaction_matrix_phase2_part1(:,2) = nan;
 interactions_matrix_phase2_part2(:,2) = nan;
 
-%Using the partner matrix, fill in their actions
+% Fill in their actions (all actions are the same)
 for partner = 1:numPartners
     %what rows are for each partners in each matrix [partner = 1:8]
-    index_phase2_part1 = find(interactions_matrix_phase2_part1(:,1) == partner);
+    index_phase2_part1 = find(interaction_matrix_phase2_part1(:,1) == partner);
     index_phase2_part2 = find(interactions_matrix_phase2_part2(:,1) == partner);
+    
     %fill in actions for offers 
-    interactions_matrix_phase2_part1(index_phase2_part1,2) = [1 2 2 3 4];
+    interaction_matrix_phase2_part1(index_phase2_part1,2) = [1 2 2 3 4];
     interactions_matrix_phase2_part2(index_phase2_part2,2) = [1 2 3 3 4];
-    %Now have the offers occur a certain amount of times per partner ($1x2,
-    %$2x3, $3x3, $4x2) - there is an issue with the left side being 1 by 1
-    %and right side being 1 by 5, think I am on the right track
-    interactions_matrix_phase2_part1 = repelem([1 2 2 3 4],[1 1 1 1 1]);
-    interactions_matrix_phase2_part2 = repelem([1 2 3 3 4],[1 1 1 1 1]);
 end
 
+interaction_matrix_phase2_part1 = interaction_matrix_phase2_part1(randperm(size(interaction_matrix_phase2_part1,1)),:);
+interactions_matrix_phase2_part2 = interactions_matrix_phase2_part2(randperm(size(interactions_matrix_phase2_part2,1)),:);
+
 %Combine two parts (partner number + offers)
-interactions_matrix_phase2 = [interactions_matrix_phase2_part1; interactions_matrix_phase2_part2];
+interaction_matrix_phase2 = [interaction_matrix_phase2_part1; interactions_matrix_phase2_part2];
 
 % Set-up file to path disk 
 
-%Create variables for variable columns for data table 
-trialNum = nan(nT,1);
-cumTrialNum = nan(nT,1);
-image = cell(nT,1);
-shared = nan(nT,1);
-partnerChoice = nan(nT,1);
-received = nan(nT,1);
 
+%%% Create variables to store participants' responses, RTs, and outcomes
+
+%Create variables for variable columns for data table: Phase 1
+participant_offer_choice = nan(nT_phase1,1);
+participant_offer_RT = nan(nT_phase1,1);
+phase1trial_total_received = nan(nT_phase1,1);
 
 %Create Data Table 
-subjData.data = table(trialNum, cumTrialNum, image, shared, partnerChoice, received);
+subjDataPhase1.data = table(participant_offer_choice, participant_offer_RT, phase1trial_total_received);
 
-% Capture Keypresses & don't affect the editor/console 
-if runfullversion == 1
-    ListenChar(2);
-end
+%Create variables for variable columns for data table: Phase 2
+participant_sharekeep_choice = nan(nT_phase2,1);
+participant_sharekeep_RT = nan(nT_phase2,1);
+phase2trial_total_received = nan(nT_phase2,1);
 
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Create Data Table 
+subjDataPhase2.data = table(participant_sharekeep_choice, participant_sharekeep_RT, phase2trial_total_received);
+
+%%% Save out stimuli & setup variables
+study_parameters = struct();
+study_parameters.numPartners = numPartners;
+study_parameters.goodrate = goodrate;
+study_parameters.badrate = badrate;
+study_parameters.partner_matrix = partner_matrix;
+study_parameters.shuffle_order = shuffle_order;
+study_parameters.allimages = allimages; % This might make this object large?
+study_parameters.fnames = fnames;
+study_parameters.nT_per_partner = nT_per_partner;
+study_parameters.nT_phase1 = nT_phase1;
+study_parameters.nT_phase2 = nT_phase2;
+study_parameters.interaction_matrix_phase1 = interaction_matrix_phase1;
+study_parameters.interaction_matrix_phase2 = interaction_matrix_phase2;
+
+save(sprintf('study_parameters_PTR%s_%.4f.mat',subjID,now),'study_parameters')
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Waiting for Experimenter Screen
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Text display
 Screen('FillRect', wind, gry);
 DrawFormattedText(wind, 'Waiting for experimenter...', 'center', 'center', blk);
@@ -300,7 +324,7 @@ while 1
     if keyIsDown
         if keyCode(esc_key_code)
             error('Experiment aborted by user!');
-        elseif any (keyCode(trig_key_code))
+        elseif any(keyCode(trig_key_code))
             break
         end
     end
@@ -328,7 +352,7 @@ instructStr{6} = ['In this phase you will complete a total of 80 interactions 10
 %for loop for these strings - also drawformattedtext
 
 for loopCnt = 1:length(instructStr)
-    DrawFormattedText(wind, 'Instructions: Economic Interactions Task', 'center', rect[], blk); %what is the rect? 
+    DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect[], blk); %what is the rect? 
     DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect[], blk, , , , ); %not sure what numbers to specify 
     % if end statement connecting images to loop
 end
