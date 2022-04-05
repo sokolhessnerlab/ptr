@@ -37,7 +37,7 @@ end
 
 % Create Experiment Window 
 if runfullversion == 0
-	rect=[1600 0 2400 600];
+	rect=[0 0 500 500];
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')),[], rect); % If it test mode, do not hide cursor 
 else
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')));
@@ -360,7 +360,8 @@ for loopCnt = 1:length(instructStr)
     %Want to link an example stimuli image to string 3 that the participant
     %can reference%
     if loopCnt == 3
-        stim_image = imread('CFD-BF-030-002-N.jpg'); 
+        path_to_image = 'C:\Users\Documents\github\ptr\stimuli\instruction_stim\CFD-BF-030-002-N.jpg';
+        stim_image = path_to_image;% FIX LINE BELOW THIS!!! 
         Screen('DrawTexture', wind, Screen('MakeTexture', wind, stim_image), [], [((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
     end
     Screen('Flip',wind,[],1);
