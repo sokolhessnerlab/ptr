@@ -344,23 +344,24 @@ instructStr{2} = ['It is well known that faces are particularly important for he
 instructStr{3} = ['In the following task, for each interaction, you will see a picture of your partners face '...
     'and then choose how much money you want to share with that partner. For each of the partners, you may choose to share $1, $2, $3, or $4.'];
 instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either,'...
-    'share part, all, or none of the money that they recieved back with you.'];
-instructstr{5} = ['In order to send money ($1, $2, $3, or $4), you must press certain keys on the keyboard. Here are the keys that correspond to each monetary value:'...
-    '$1 = f, $2 = g, $3, = h, $4 = j. Then if you wwant to advance to your next interaction press the space bar.'];
+    'share the money with you or keep the money to themselves.'];
+instructStr{5} = ['In order to send money ($1, $2, $3, or $4), you must press certain keys on the keyboard. Here are the keys that correspond to each monetary value:'...
+    '$1 = f, $2 = g, $3, = h, $4 = j. Then if you want to advance to your next interaction press the space bar.'];
 instructStr{6} = ['Here is an example of an interaction: You see the photo of your partner alongside other attribute information, '...
     'and decide to share $2 of your money with them. This money will then be tripled (becoming $6). '...
     'Your partner then has the chance to share $3 with you and keep $3 for themsevles, or keep all $6 for themselves.']; %change this last sentence, want to make sure that they remember who they are dealing with%
-instructStr{7} = ['In this phase you will complete a total of 80 interaction. 10 with each partner.'];
+instructStr{7} = ['In this phase you will complete a total of 80 interactions. 10 with each partner.'];
 
 %for loop for these strings
 for loopCnt = 1:length(instructStr)
+    
     DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk); %what is the rect? 
     DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify 
     %Want to link an example stimuli image to string 3 that the participant
     %can reference%
     if loopCnt == 3
-        StimImage = imread([allimages(length(allimages)).('folder') filesep %DON"T KNOW HOW TO FINISH THIS%
-        Screen('DrawTexture', wind, Screen('MakeTexture', wind, StimImage), [], [((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);%All BST numbers, not sure if right
+        stim_image = imread('CFD-BF-030-002-N.jpg'); 
+        Screen('DrawTexture', wind, Screen('MakeTexture', wind, stim_image), [], [((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
     end
     Screen('Flip',wind,[],1);
         
@@ -369,33 +370,32 @@ for loopCnt = 1:length(instructStr)
     DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
     Screen('Flip', wind);
     
-    while 1
-    [keyIsDow,~,keyCode] = KbCeck(-1);
-    if keyIsDown && any(keyCode(space_key_code))
-        DrawFormattedText(wind, 'Reminds', 'center', rect(4)*.1, blk);
-        Screen('Flip', wind);
-        break
-    elseif keyisDown && keyCode(esc_key_code)
-        error('Experiment aborted by user!');
-    end
-    end
-    end
+     while 1
+       [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown && any(keyCode(space_key_code))
+            DrawFormattedText(wind, 'Instructions', 'center', rect(4)*.1, blk);
+            Screen('Flip', wind);
+            break
+        elseif keyIsDown && keyCode(esc_key_code)
+            error('Experiment aborted by user!');
+        end
+     end
 end
 
 %Check-In
 Screen('FillRect', wind, gry);
- DrawFormattedText(wind, 'This is the end of the instructions. Please tell your experimenter whether or not you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
-            Screen(wind,'Flip');
-            while 1
-                [keyIsDown,~,keyCode] = KbCheck(-1);
-                if keyIsDown
-                    if keyCode(esc_key_code)
-                        error('Experiment aborted by user!');
-                    elseif any(keyCode(trig_key_code))
-                        break
-                    end
-                end
-            end
+DrawFormattedText(wind, 'This is the end of the instructions. Please tell your experimenter whether or not you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
+Screen(wind,'Flip');
+while 1
+     [keyIsDown,~,keyCode] = KbCheck(-1);
+     if keyIsDown
+         if keyCode(esc_key_code)
+             error('Experiment aborted by user!');
+         elseif any(keyCode(trig_key_code))
+             break
+         end
+     end
+end
 
             %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -405,6 +405,7 @@ Screen('FillRect', wind, gry);
 trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
 
     %Want the particpant to be able to start the task when they want to
+    %press all 4 keys at the same time...
     DrawFormattedText(wind, 'Press f, g, h, or j to start the experiment.', 'center', rect(4)*.9, blk);
     Screen ('Flip', wind);
     
