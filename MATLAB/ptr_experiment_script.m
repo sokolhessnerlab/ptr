@@ -42,6 +42,7 @@ if runfullversion == 0
 else
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')));
 end
+  
 
 % Define Experiment Window
 blk = BlackIndex(wind);
@@ -361,12 +362,16 @@ for loopCnt = 1:length(instructStr)
     %can reference%
     if loopCnt == 3
         path_to_image = 'C:\Users\Documents\github\ptr\stimuli\instruction_stim\CFD-BF-030-002-N.jpg';
-        stim_image = path_to_image;% FIX LINE BELOW THIS!!! 
-        Screen('DrawTexture', wind, Screen('MakeTexture', wind, stim_image), [], [((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
+        stim_image = path_to_image;
+        stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image 
+        Screen('DrawTexture', wind, stim_image,[],[((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
     end
     Screen('Flip',wind,[],1);
+      
         
+      
     WaitSecs(3);
+      
         
     DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
     Screen('Flip', wind);
