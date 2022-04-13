@@ -37,7 +37,7 @@ end
 
 % Create Experiment Window 
 if runfullversion == 0
-	rect=[0 0 500 500];
+	rect=[0 0 800 800];
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')),[], rect); % If it test mode, do not hide cursor 
 else
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')));
@@ -344,9 +344,9 @@ instructStr{2} = ['It is well known that faces are particularly important for he
     'we will provide you with a picture of your partner, along with additional demographic information.'];
 instructStr{3} = ['In the following task, for each interaction, you will see a picture of your partners face '...
     'and then choose how much money you want to share with that partner. For each of the partners, you may choose to share $1, $2, $3, or $4.'];
-instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either,'...
+instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either, '...
     'share the money with you or keep the money to themselves.'];
-instructStr{5} = ['In order to send money ($1, $2, $3, or $4), you must press certain keys on the keyboard. Here are the keys that correspond to each monetary value:'...
+instructStr{5} = ['In order to send money ($1, $2, $3, or $4), you must press certain keys on the keyboard. Here are the keys that correspond to each monetary value: '...
     '$1 = f, $2 = g, $3, = h, $4 = j. Then if you want to advance to your next interaction press the space bar.'];
 instructStr{6} = ['Here is an example of an interaction: You see the photo of your partner alongside other attribute information, '...
     'and decide to share $2 of your money with them. This money will then be tripled (becoming $6). '...
@@ -361,14 +361,16 @@ for loopCnt = 1:length(instructStr)
     %Want to link an example stimuli image to string 3 that the participant
     %can reference%
     if loopCnt == 3
-        path_to_image = 'C:\Users\Documents\github\ptr\stimuli\instruction_stim\CFD-BF-030-002-N.jpg';
-        stim_image = path_to_image;
+        path_to_image = [relative_image_path '/instruction_stim/CFD-BF-030-002-N.jpg'];
+        stim_image = imread(path_to_image);
         stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image 
-        Screen('DrawTexture', wind, stim_image,[],[((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
+        Screen('DrawTexture', wind, stim_image_txt,[],[((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
     end
-    Screen('Flip',wind,[],1);
+    Screen('Flip',wind,[],1); 
+      
       
         
+       
       
     WaitSecs(3);
       
@@ -414,7 +416,7 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
     %press all 4 keys at the same time...
     DrawFormattedText(wind, 'Press f, g, h, or j to start the experiment.', 'center', rect(4)*.9, blk);
     Screen ('Flip', wind);
-    
+    %needs to be fixed to to have all of the 4 keys down at the same time
     while 1
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
