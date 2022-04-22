@@ -42,7 +42,9 @@ if runfullversion == 0
 else
 	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')));
 end
-  
+
+screenheight = rect(4);
+screenwidth = rect(3); 
 
 % Define Experiment Window
 blk = BlackIndex(wind);
@@ -164,7 +166,16 @@ fnames = dir([relative_image_path '*.jpg']);
 fnames_for_loading = fnames;
 outputpath = ['output' filesep];
 
-allimages = nan(1718,2444,3,numPartners); % pixels, pixels, RGB, partner
+original_image_width = 2444;
+original_image_height = 1718;
+image_display_ratio = (screenheight/3)/original_image_height;
+
+img_location_rect = [screenwidth*.5 - original_image_width*image_display_ratio*.5
+    screenheight*.5 - original_image_height*image_display_ratio*.5
+    screenwidth*.5 + original_image_width*image_display_ratio*.5
+    screenheight*.5 + original_image_height*image_display_ratio*.5]';
+
+allimages = nan(original_image_height,original_image_width,3,numPartners); % pixels, pixels, RGB, partner
 
 for partner = 1:numPartners
     if partner_matrix(partner,3) == 1
@@ -331,6 +342,7 @@ while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
     if keyIsDown
         if keyCode(esc_key_code)
+            sca
             error('Experiment aborted by user!');
         elseif any(keyCode(trig_key_code))
             break
@@ -348,16 +360,16 @@ instructStr{1} = ['As a reminder, in the following task, you will be interacting
 instructStr{2} = ['It is well known that faces are particularly important for helping us gather social information. '...
     'For this reason, and to give you a better sense of whom you are interacting with, '...
     'we will provide you with a picture of your partner, along with additional demographic information.'];
-instructStr{3} = ['In the following task, for each interaction, you will see a picture of your partners face '...
-    'and then choose how much money you want to share with that partner. For each of the partners, you may choose to share $1, $2, $3, or $4.'];
-instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either, '...
-    'share the money with you or keep the money to themselves.'];
-instructStr{5} = ['In order to send money ($1, $2, $3, or $4), you must press certain keys on the keyboard. Here are the keys that correspond to each monetary value: '...
-    '$1 = f, $2 = g, $3, = h, $4 = j. Then if you want to advance to your next interaction press the space bar.'];
+instructStr{3} = ['For each interaction, you will see a picture of your partner''s face '...
+    'and then choose how much money you want to share with that partner ($1, $2, $3, or $4).'];
+instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either '...
+    'share half of the money with you or keep all of the money for themselves.'];
+instructStr{5} = ['When you''ve made your decision, press the keys f, g, h, or j to send $1, $2, $3, or $4, respectively (e.g., '...
+    'to send $3, press the h key). Please keep your fingers on these keys at all times during the study. Then if you want to advance to your next interaction press the space bar.'];
 instructStr{6} = ['Here is an example of an interaction: You see the photo of your partner alongside other attribute information, '...
-    'and decide to share $2 of your money with them. This money will then be tripled (becoming $6). '...
-    'Your partner then has the chance to share $3 with you and keep $3 for themsevles, or keep all $6 for themselves.']; %change this last sentence, want to make sure that they remember who they are dealing with%
-instructStr{7} = ['In this phase you will complete a total of 80 interactions. 10 with each partner.'];
+    'and decide to share $2 of your money with them. This money then triples (becoming $6). '...
+    'Your partner then has the chance to share $3 with you and keep $3 for themselves, or keep all $6.']; %change this last sentence, want to make sure that they remember who they are dealing with%
+instructStr{7} = ['In this phase you will complete a total of 80 interactions (10 with each partner).'];
 
 %for loop for these strings
 for loopCnt = 1:length(instructStr)
@@ -367,30 +379,26 @@ for loopCnt = 1:length(instructStr)
     %Want to link an example stimuli image to string 3 that the participant
     %can reference%
     if loopCnt == 3
-        path_to_image = [relative_image_path '/instruction_stim/CFD-BF-030-002-N.jpg'];
+        path_to_image = [relative_image_path 'instruction_stim/CFD-BF-030-002-N.jpg'];
         stim_image = imread(path_to_image);
         stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image 
-        Screen('DrawTexture', wind, stim_image_txt,[],[((rect(3)-rect(1))/2)-150 rect(4)*.45 ((rect(3)-rect(1))/2)+150 (rect(4)*.45)+300]);
+        Screen('DrawTexture', wind, stim_image_txt,[],img_location_rect);
     end
     Screen('Flip',wind,[],1); 
       
-      
-        
-       
-      
     WaitSecs(3);
       
-        
     DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
     Screen('Flip', wind);
     
      while 1
        [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown && any(keyCode(space_key_code))
-            DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk);
-            Screen('Flip', wind);
+%             DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk);
+%             Screen('Flip', wind);
             break
         elseif keyIsDown && keyCode(esc_key_code)
+            sca
             error('Experiment aborted by user!');
         end
      end
@@ -398,12 +406,13 @@ end
 
 %Check-In
 Screen('FillRect', wind, gry);
-DrawFormattedText(wind, 'This is the end of the instructions. Please tell your experimenter whether or not you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'This is the end of the instructions! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen(wind,'Flip');
 while 1
      [keyIsDown,~,keyCode] = KbCheck(-1);
      if keyIsDown
          if keyCode(esc_key_code)
+             sca
              error('Experiment aborted by user!');
          elseif any(keyCode(trig_key_code))
              break
@@ -411,31 +420,50 @@ while 1
      end
 end
 
-            %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% START EXPERIMENT
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Creat trialText string
 trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
 
-    %Want the particpant to be able to start the task when they want to
-    %press all 4 keys at the same time...
-    DrawFormattedText(wind, 'Press f, g, h, or j to start the experiment.', 'center', rect(4)*.9, blk);
-    Screen ('Flip', wind);
-    %needs to be fixed to to have all of the 4 keys down at the same time
+    % Allow participant to start the task by pressing all 4 response keys.
+    DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
+    DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, or j).', 'center', rect(4)*.9, blk, 50);
+    Screen('Flip', wind);
     while 1
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
             if keyCode(esc_key_code)
+                sca
                 error('Experiment aborted by user!');
-            elseif any(keyCode(resp_key_codes))
+            elseif all(keyCode(resp_key_codes))
                 break
             end
         end
     end
     
+    DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
+    pre_study_wait_time = GetSecs;
+    Screen('Flip', wind);
+    while (GetSecs - pre_study_wait_time) < 5
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
     
-    
+    for t = 1:nT_phase1 % Trial Loop
+        % In here, use interactions_matrix_phase1, with columns partner &
+        % share/keep (1/0)
+        % Use partner number to access allimages(:,:,:,N) per trial.
+        % Save data in...
+        % subjDataPhase1.data.participant_offer_choice (dollar amount)
+        % subjDataPhase1.data.participant_offer_RT (in ms)
+        % subjDataPhase1.data.phase1trial_total_received (not-offered +
+        % shared)
+    end
 
-WaitSecs(2)
 sca
