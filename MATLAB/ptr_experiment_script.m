@@ -454,8 +454,16 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
             end
         end
     end
+         
+
     
     for t = 1:nT_phase1 % Trial Loop
+        %background white to match stimuli
+        Screen('FillRect', wind, wht);
+        DrawFormattedText(wind, 'Starting...', 'center', 'center', blk);
+        Screen('Flip', wind);
+        WaitSecs(1);
+    
         % In here, use interactions_matrix_phase1, with columns partner &
         % share/keep (1/0)
         % Use partner number to access allimages(:,:,:,N) per trial.
@@ -465,5 +473,26 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
         % subjDataPhase1.data.phase1trial_total_received (not-offered +
         % shared)
     end
+    
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% END PHASE 1
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %show end text
+        Screen('FillRect', wind, gry);
+        DrawFormattedText(wind, 'You''ve completed the first phase of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
+        Screen('Flip', wind);
+        while 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    error('Experiment aborted by user!');
+                elseif any(keyCode(trig_key_code))
+                    break
+                end
+            end
+        end
+        
+        
+            
 
 sca
