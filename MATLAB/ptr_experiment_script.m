@@ -202,7 +202,7 @@ for partner = 1:numPartners
     
     allimages(:,:,:,partner) = imread([relative_image_path fnames(image_number).name]);
     
-    fnames_for_loading(image_number) = []; % get rid of this image now we've used it. 
+    fnames_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements 
 end
 
 disp('Partner images loaded. Setting up part 2.')
@@ -221,8 +221,6 @@ allimages = allimages(:,:,:,shuffle_order);
 % end 
 
 nT_per_partner = 10;
-
-
 nT_phase1 = numPartners * nT_per_partner;
 nT_phase2 = nT_phase1;
 
@@ -379,8 +377,8 @@ for loopCnt = 1:length(instructStr)
     %Want to link an example stimuli image to string 3 that the participant
     %can reference%
     if loopCnt == 3
-        path_to_image = [relative_image_path 'instruction_stim/CFD-BF-030-002-N.jpg'];
-        stim_image = imread(path_to_image);
+        path_to_instruction_image = [relative_image_path 'instruction_stim/CFD-BF-030-002-N.jpg'];
+        stim_image = imread(path_to_instruction_image);
         stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image 
         Screen('DrawTexture', wind, stim_image_txt,[],img_location_rect);
     end
@@ -425,7 +423,7 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Creat trialText string
 trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
-
+%Need to add political affiliation text + age
     % Allow participant to start the task by pressing all 4 response keys.
     DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
     DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, or j).', 'center', rect(4)*.9, blk, 50);
@@ -456,14 +454,38 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
     end
          
 
-    
+    subjData.ts.studystart = GetSecs; %log the study start time if it's the first trial
     for t = 1:nT_phase1 % Trial Loop
-        %background white to match stimuli
+        %make background white
+        % change the background to white to match the stimuli
         Screen('FillRect', wind, wht);
         DrawFormattedText(wind, 'Starting...', 'center', 'center', blk);
         Screen('Flip', wind);
         WaitSecs(1);
-    
+        startLoc = ((t-1)*allimages)+1;
+        %break up the face stimuli
+        trial_stim = allimages(startLoc:(startLoc-1+numPartners));
+        
+        %go through each stimuli and add in an image + make texture 
+        for loopCnt = 1:numPartners
+            %make texture, go through each stimuli and add in an image 
+            curStimImage = imread([trial_stim(loopCnt).('folder') filesep allimages(loopCnt). ('name')]);
+            allimages(loopCnt).('stim_texture') = Screen('MakeTexture', wind, curStimImage);
+        
+            Screen('DrawTexture', wind, trial_stim(loopCnt).stim_texture);
+            DrawFormattedText(wind,trialText, 'center', rect(4) * 0.65);
+            
+            Screen('Flip', wind);
+        
+        
+        
+        
+        end 
+
+        %put it together with interactions matrix
+        
+        
+     
         % In here, use interactions_matrix_phase1, with columns partner &
         % share/keep (1/0)
         % Use partner number to access allimages(:,:,:,N) per trial.
@@ -472,6 +494,10 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
         % subjDataPhase1.data.participant_offer_RT (in ms)
         % subjDataPhase1.data.phase1trial_total_received (not-offered +
         % shared)
+        %make texture for images 
+        %Interactions_matrix_phase1 use partner number to access allimages
+        %per trial
+ 
     end
     
      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
