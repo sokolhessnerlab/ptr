@@ -473,14 +473,28 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
             Screen('DrawTexture', wind, trial_stim_text,[],img_location_rect);
             DrawFormattedText(wind,trialText, 'center', rect(4) * 0.65);
             
+            %put it together with interactions matrix, use partner number
+            %to access all images per trial
+            
             Screen('Flip', wind);
+            
+            %while loop for key responses 
+            
+            %endTime stamp
+            
+            %locations for saving (get this)
+            
+            %participant offer choice (dollar amount)
+            subjDataPhase1.data.participant_offer_choice
+            
+            %participant_off_RT (in ms)
+            subjDataPhase1.data.participant_offer_RT
+            
+            %phase1trial_total_recieved (not-offered + shared)
+            subjDataPhase1.data.phase1trial_total_received
        
-        end 
-
-        %put it together with interactions matrix
+        end
         
-        
-     
         % In here, use interactions_matrix_phase1, with columns partner &
         % share/keep (1/0)
         % Use partner number to access allimages(:,:,:,N) per trial.
