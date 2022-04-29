@@ -455,16 +455,24 @@ end
     % Creat trialText string
     trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
     
-    subjDataPhase1.ts.studystart = GetSecs; %log the study start time if it's the first trial
+    
     for t = 1:nT_phase1 % Trial Loop
         % In here, use interactions_matrix_phase1, with columns partner &
         % share/keep (1/0)
         
-        tmp_partnerID = interactions_matrix_phase1(t,1);
+        %show affiliation
+        tmp_partnerID = interaction_matrix_phase1(t,1); 
+        if partner_matrix(tmp_partnerID,1) == 1
+            affiliation_txt = 'Democrat';
+        elseif partner_matrix(tmp_partnerID,1) == 0
+            affiliation_txt = 'Republican';
+        end
         
-        trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID)); %getting an error with this because it "doesn't correspond to an open window"
-        %display the image, I FEEL LIKE IM CLOSE?
+        
+        trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID)); 
         Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+        %affiliation text 
+        DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
         Screen('Flip', wind, [], 1);
         
         time_trial_start = GetSecs;
@@ -480,20 +488,24 @@ end
         end
 
         
-        DrawFormattedText(wind,trialText, 'center', screenheight * 0.65);
+        DrawFormattedText(wind,trialText, 'center', screenheight * 0.85);
         Screen('Flip', wind); 
         
         time_response_window_start = GetSecs;
 
         % Code to collect response
         while GetSecs - time_response_window_start < 2
-            [keyIsDown,~,keyCode] = KbCheck(-1);
+            [keyIsDown,~,keyCode] = KbCheck(-1); %record keycode
             %if keyIsDown
             if (keyIsDown && size(find(keyCode),2) ==1)
                 if keyCode(esc_key_code)
                     error('Experiment aborted by user'); % allow aborting the study here
                 elseif any(keyCode(resp_key_codes)) % IF the pressed key matches a response key...
                     subjDataPhase1.data.participant_offer_RT(t) = GetSecs - time_response_window_start; % record RT
+                    %which key code, did they push the f, g, h, j key? if its f that
+                    %means they sent 1, (2,3,4 etc.) whichever is correct you store
+                    %into the variable, use keyCode to see which keycode they
+                    %decided to push
                     break % change screen as soon as they respond
                 end
             end
@@ -501,12 +513,44 @@ end
 
         
         % ISI (brief screen break)
+        %fixation point, wait for 1 sec
+        DrawFormattedText(wind,'+', 'center', 'center');
+        Screen('Flip', wind);
+        time_isi_start = GetSecs;
         
-        % Show partner's response
-        
+        while (GetSecs - time_isi_start) < 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+           %Show partner's response
+           %similar to the very beginning, pop up face affiliation, instead
+           %of response prompt if the partner (share/keep), corresponding to column 2
+           %interactions_matrix_phase1 (t,2)
+           %473-475, one more line thats share/keep
+         
+     
         % ITI (brief inter-trial break)
+        %fixation point, wait for 2sec
+        DrawFormattedText(wind,'+', 'center', 'center');
+        Screen('Flip', wind);
+        time_iti_start = GetSecs;
         
+        while (GetSecs - time_iti_start) < 2
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
         
+      
         % Code to save response & related info
         % Save data in...
         % subjDataPhase1.data.participant_offer_choice (dollar amount)
