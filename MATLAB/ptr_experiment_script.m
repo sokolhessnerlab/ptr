@@ -421,8 +421,6 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% START EXPERIMENT
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Creat trialText string
-trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
 %Need to add political affiliation text + age
     % Allow participant to start the task by pressing all 4 response keys.
     DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
@@ -440,6 +438,7 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
         end
     end
     
+    Screen('FillRect', wind, wht);
     DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
     pre_study_wait_time = GetSecs;
     Screen('Flip', wind);
@@ -452,51 +451,73 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
             end
         end
     end
-         
-
-    subjData.ts.studystart = GetSecs; %log the study start time if it's the first trial
+    
+    % Creat trialText string
+    trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
+    
+    subjDataPhase1.ts.studystart = GetSecs; %log the study start time if it's the first trial
     for t = 1:nT_phase1 % Trial Loop
-        %make background white
-        % change the background to white to match the stimuli
-        Screen('FillRect', wind, wht);
-        DrawFormattedText(wind, 'Starting...', 'center', 'center', blk);
-        Screen('Flip', wind);
-        WaitSecs(1);
-        
-        
-        %go through each stimuli and add in an image + make texture 
-        for loopCnt = 1:numPartners
-            %make texture, go through each stimuli and add in an image
-            trial_stim = allimages(:,:,:,partner);
-            trial_stim_text = Screen('MakeTexture', wind, trial_stim); %getting an error with this because it "doesn't correspond to an open window"
-            %display the image, I FEEL LIKE IM CLOSE? 
-            Screen('DrawTexture', wind, trial_stim_text,[],img_location_rect);
-            DrawFormattedText(wind,trialText, 'center', rect(4) * 0.65);
-            
-            Screen('Flip', wind);
-       
-        end 
-
-        %put it together with interactions matrix
-        
-        
-     
         % In here, use interactions_matrix_phase1, with columns partner &
         % share/keep (1/0)
-        % Use partner number to access allimages(:,:,:,N) per trial.
+        
+        tmp_partnerID = interactions_matrix_phase1(t,1);
+        
+        trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID)); %getting an error with this because it "doesn't correspond to an open window"
+        %display the image, I FEEL LIKE IM CLOSE?
+        Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+        Screen('Flip', wind, [], 1);
+        
+        time_trial_start = GetSecs;
+        
+        while (GetSecs - time_trial_start) < 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+
+        
+        DrawFormattedText(wind,trialText, 'center', screenheight * 0.65);
+        Screen('Flip', wind); 
+        
+        time_response_window_start = GetSecs;
+
+        % Code to collect response
+        while GetSecs - time_response_window_start < 2
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            %if keyIsDown
+            if (keyIsDown && size(find(keyCode),2) ==1)
+                if keyCode(esc_key_code)
+                    error('Experiment aborted by user'); % allow aborting the study here
+                elseif any(keyCode(resp_key_codes)) % IF the pressed key matches a response key...
+                    subjDataPhase1.data.participant_offer_RT(t) = GetSecs - time_response_window_start; % record RT
+                    break % change screen as soon as they respond
+                end
+            end
+        end
+
+        
+        % ISI (brief screen break)
+        
+        % Show partner's response
+        
+        % ITI (brief inter-trial break)
+        
+        
+        % Code to save response & related info
         % Save data in...
         % subjDataPhase1.data.participant_offer_choice (dollar amount)
         % subjDataPhase1.data.participant_offer_RT (in ms)
         % subjDataPhase1.data.phase1trial_total_received (not-offered +
         % shared)
-        %make texture for images 
-        %Interactions_matrix_phase1 use partner number to access allimages
-        %per trial
- 
+        
     end
     
-     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%% END PHASE 1
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% END PHASE 1
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %show end text
         Screen('FillRect', wind, gry);
