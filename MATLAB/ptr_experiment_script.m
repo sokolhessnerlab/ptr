@@ -462,24 +462,19 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
         DrawFormattedText(wind, 'Starting...', 'center', 'center', blk);
         Screen('Flip', wind);
         WaitSecs(1);
-        startLoc = ((t-1)*allimages)+1;
-        %break up the face stimuli
-        trial_stim = allimages(startLoc:(startLoc-1+numPartners));
+        
         
         %go through each stimuli and add in an image + make texture 
         for loopCnt = 1:numPartners
-            %make texture, go through each stimuli and add in an image 
-            curStimImage = imread([trial_stim(loopCnt).('folder') filesep allimages(loopCnt). ('name')]);
-            allimages(loopCnt).('stim_texture') = Screen('MakeTexture', wind, curStimImage);
-        
-            Screen('DrawTexture', wind, trial_stim(loopCnt).stim_texture);
+            %make texture, go through each stimuli and add in an image
+            trial_stim = allimages(:,:,:,partner);
+            trial_stim_text = Screen('MakeTexture', wind, trial_stim); %getting an error with this because it "doesn't correspond to an open window"
+            %display the image, I FEEL LIKE IM CLOSE? 
+            Screen('DrawTexture', wind, trial_stim_text,[],img_location_rect);
             DrawFormattedText(wind,trialText, 'center', rect(4) * 0.65);
             
             Screen('Flip', wind);
-        
-        
-        
-        
+       
         end 
 
         %put it together with interactions matrix
@@ -518,7 +513,7 @@ trialText = 'How much money would you like to share? \n\n $1     $2     $3     $
             end
         end
         
-        
+        %OPENING INSTRUCTIONS/SCREENS FOR PHASE 2 
             
 
 sca
