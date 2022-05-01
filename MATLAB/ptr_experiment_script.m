@@ -5,46 +5,46 @@ function [subjData] = ptr_experiment_script(subjID, runfullversion)
 %
 % DATA:
 %
-% 
-% POLITICAL ORIENTATION DATA: 
+%
+% POLITICAL ORIENTATION DATA:
 % 'Democrat' = 0
 % 'Republican' = 1
 %
-% AGE DATA: 
-% 'Age' = 
-	% '19' 
-	% '20'
-	% '21'
+% AGE DATA:
+% 'Age' =
+% '19'
+% '20'
+% '21'
 %
-% Partner Choice: 
+% Partner Choice:
 % $1 = 'f'
 % $2= 'g'
 % $3 = 'h'
 % $4 = 'j'
 %
-% set up defaults 
+% set up defaults
 Screen('Preference', 'SkipSyncTests', 1); %skips sync tests for monitor relay timing (for use during testing w/ dual monitor)
 if nargin < 2
-	runfullversion = 0; % assume that we run the short version of the study
+    runfullversion = 0; % assume that we run the short version of the study
 end
 if nargin < 1
-	subjID = '000'; % assume default subjID 000
+    subjID = '000'; % assume default subjID 000
 end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% PREPARATION & GLOBAL VARS
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% PREPARATION & GLOBAL VARS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Create Experiment Window 
+% Create Experiment Window
 if runfullversion == 0
-	rect=[0 0 800 600];
-	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')),[], rect); % If it test mode, do not hide cursor 
+    rect=[0 0 800 600];
+    [wind, rect] = Screen('OpenWindow', max(Screen('Screens')),[], rect); % If it test mode, do not hide cursor
 else
-	[wind, rect] = Screen('OpenWindow', max(Screen('Screens')));
+    [wind, rect] = Screen('OpenWindow', max(Screen('Screens')));
 end
 
 screenheight = rect(4);
-screenwidth = rect(3); 
+screenwidth = rect(3);
 
 % Define Experiment Window
 blk = BlackIndex(wind);
@@ -63,7 +63,7 @@ rng('shuffle');
 if ismac
     homepath = [filesep 'Volumes' filesep 'research' filesep 'AHSS Psychology' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'task' filesep];
 end
-        
+
 % if IsWin
 %     homepath = ['S:' filesep 'Projects' filesep 'PTR' filesep 'task' filesep];
 % end
@@ -78,10 +78,17 @@ space_key_code = KbName('space'); %For participant to advance the screen
 esc_key_code = KbName('ESCAPE'); % Abort key
 trig_key_code = KbName('Return'); % experimenter advance key
 
-% Capture Keypresses & don't affect the editor/console 
+% Capture Keypresses & don't affect the editor/console
 if runfullversion == 1
     ListenChar(2);
 end
+
+% Define trial timing
+showpartner_duration = 1; %
+max_response_window_duration = 2;
+isi_duration = 1;
+outcome_duration = 1;
+iti_duration = 2;
 
 disp('Beginning partner setup')
 
@@ -183,26 +190,26 @@ for partner = 1:numPartners
     elseif partner_matrix(partner,3) == 0
         tmp_gender = 'M';
     end
-    
+
     if partner_matrix(partner,4) == 1
         tmp_race = 'B';
     elseif partner_matrix(partner,4) == 0
         tmp_race = 'W';
     end
-    
+
     imgtxt = [tmp_race tmp_gender];
-    
+
     for image_number = 1:length(fnames_for_loading)
         if strcmp(imgtxt,fnames_for_loading(image_number).name(5:6))
             break
         end
     end
-    
+
     fnames(partner) = fnames_for_loading(image_number);
-    
+
     allimages(:,:,:,partner) = imread([relative_image_path fnames(image_number).name]);
-    
-    fnames_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements 
+
+    fnames_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements
 end
 
 disp('Partner images loaded. Setting up part 2.')
@@ -218,7 +225,7 @@ allimages = allimages(:,:,:,shuffle_order);
 %     nT_per_partner = 10;
 % else
 %     nT_per_partner = 2;
-% end 
+% end
 
 nT_per_partner = 10;
 nT_phase1 = numPartners * nT_per_partner;
@@ -241,7 +248,7 @@ for partner = 1:numPartners
     index_part1 = find(interaction_matrix_phase1_part1(:,1) == partner);
     index_part2 = find(interaction_matrix_phase1_part2(:,1) == partner);
     index_part3 = find(interaction_matrix_phase1_part3(:,1) == partner);
-    
+
     % Then, using their rate, fill in their actions in the 3 matrices
     if partner_matrix(partner,2) == goodrate
         interaction_matrix_phase1_part1(index_part1,2) = [1 1 0];
@@ -260,13 +267,13 @@ interaction_matrix_phase1_part2 = interaction_matrix_phase1_part2(randperm(lengt
 interaction_matrix_phase1_part3 = interaction_matrix_phase1_part3(randperm(length(interaction_matrix_phase1_part3)),:);
 
 % Assemble the final matrix: partner number, share [1]/keep [0] decision
-interaction_matrix_phase1 = [interaction_matrix_phase1_part1; 
-                             interaction_matrix_phase1_part2;
-                             interaction_matrix_phase1_part3];
-                         
+interaction_matrix_phase1 = [interaction_matrix_phase1_part1;
+    interaction_matrix_phase1_part2;
+    interaction_matrix_phase1_part3];
+
 % Phase 2 matrices made up of 2 matrices (offer patterns)
 interaction_matrix_phase2_part1 = repmat(1:numPartners,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction
-interactions_matrix_phase2_part2 = repmat(1:numPartners,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction 
+interactions_matrix_phase2_part2 = repmat(1:numPartners,[1,5])'; % 40 trials, Rows 1 through 8, 5 offers within interaction
 
 % Placeholders for offers [$1=1, $2=2, $3=3, $4=4,]
 interaction_matrix_phase2_part1(:,2) = nan;
@@ -277,8 +284,8 @@ for partner = 1:numPartners
     %what rows are for each partners in each matrix [partner = 1:8]
     index_phase2_part1 = find(interaction_matrix_phase2_part1(:,1) == partner);
     index_phase2_part2 = find(interactions_matrix_phase2_part2(:,1) == partner);
-    
-    %fill in actions for offers 
+
+    %fill in actions for offers
     interaction_matrix_phase2_part1(index_phase2_part1,2) = [1 2 2 3 4];
     interactions_matrix_phase2_part2(index_phase2_part2,2) = [1 2 3 3 4];
 end
@@ -289,7 +296,7 @@ interactions_matrix_phase2_part2 = interactions_matrix_phase2_part2(randperm(siz
 %Combine two parts (partner number + offers)
 interaction_matrix_phase2 = [interaction_matrix_phase2_part1; interactions_matrix_phase2_part2];
 
-% Set-up file to path disk 
+% Set-up file to path disk
 
 disp('Part 2 setup complete. Creating placeholders for data.')
 
@@ -300,7 +307,7 @@ participant_offer_choice = nan(nT_phase1,1);
 participant_offer_RT = nan(nT_phase1,1);
 phase1trial_total_received = nan(nT_phase1,1);
 
-%Create Data Table 
+%Create Data Table
 subjDataPhase1.data = table(participant_offer_choice, participant_offer_RT, phase1trial_total_received);
 
 %Create variables for variable columns for data table: Phase 2
@@ -308,7 +315,7 @@ participant_sharekeep_choice = nan(nT_phase2,1);
 participant_sharekeep_RT = nan(nT_phase2,1);
 phase2trial_total_received = nan(nT_phase2,1);
 
-%Create Data Table 
+%Create Data Table
 subjDataPhase2.data = table(participant_sharekeep_choice, participant_sharekeep_RT, phase2trial_total_received);
 
 %%% Save out stimuli & setup variables
@@ -328,9 +335,9 @@ study_parameters.interaction_matrix_phase2 = interaction_matrix_phase2;
 
 save(sprintf('study_parameters_PTR%s_%.4f.mat',subjID,now),'study_parameters')
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Waiting for Experimenter Screen
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Waiting for Experimenter Screen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Text display
 Screen('FillRect', wind, gry);
@@ -348,9 +355,9 @@ while 1
     end
 end
 
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Instructions
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Instructions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Define the task instructions (being displayed to participant)
 
 instructStr{1} = ['As a reminder, in the following task, you will be interacting with 8 hypothetical partners. '...
@@ -369,37 +376,37 @@ instructStr{6} = ['Here is an example of an interaction: You see the photo of yo
     'Your partner then has the chance to share $3 with you and keep $3 for themselves, or keep all $6.']; %change this last sentence, want to make sure that they remember who they are dealing with%
 instructStr{7} = ['In this phase you will complete a total of 80 interactions (10 with each partner).'];
 
-%for loop for these strings
+%for loop for instruction strings
 for loopCnt = 1:length(instructStr)
-    
-    DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk); %what is the rect? 
-    DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify 
+
+    DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk); %what is the rect?
+    DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify
     %Want to link an example stimuli image to string 3 that the participant
     %can reference%
     if loopCnt == 3
         path_to_instruction_image = [relative_image_path 'instruction_stim/CFD-BF-030-002-N.jpg'];
         stim_image = imread(path_to_instruction_image);
-        stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image 
+        stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image
         Screen('DrawTexture', wind, stim_image_txt,[],img_location_rect);
     end
-    Screen('Flip',wind,[],1); 
-      
+    Screen('Flip',wind,[],1);
+
     WaitSecs(3);
-      
+
     DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
     Screen('Flip', wind);
-    
-     while 1
-       [keyIsDown,~,keyCode] = KbCheck(-1);
+
+    while 1
+        [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown && any(keyCode(space_key_code))
-%             DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk);
-%             Screen('Flip', wind);
+            %             DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk);
+            %             Screen('Flip', wind);
             break
         elseif keyIsDown && keyCode(esc_key_code)
             sca
             error('Experiment aborted by user!');
         end
-     end
+    end
 end
 
 %Check-In
@@ -407,42 +414,117 @@ Screen('FillRect', wind, gry);
 DrawFormattedText(wind, 'This is the end of the instructions! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen(wind,'Flip');
 while 1
-     [keyIsDown,~,keyCode] = KbCheck(-1);
-     if keyIsDown
-         if keyCode(esc_key_code)
-             sca
-             error('Experiment aborted by user!');
-         elseif any(keyCode(trig_key_code))
-             break
-         end
-     end
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif any(keyCode(trig_key_code))
+            break
+        end
+    end
 end
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%% START EXPERIMENT
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% START EXPERIMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Need to add political affiliation text + age
-    % Allow participant to start the task by pressing all 4 response keys.
-    DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
-    DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, or j).', 'center', rect(4)*.9, blk, 50);
-    Screen('Flip', wind);
-    while 1
+% Allow participant to start the task by pressing all 4 response keys.
+DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, or j).', 'center', rect(4)*.9, blk, 50);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif all(keyCode(resp_key_codes))
+            break
+        end
+    end
+end
+
+Screen('FillRect', wind, wht);
+DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
+pre_study_wait_time = GetSecs;
+Screen('Flip', wind);
+while (GetSecs - pre_study_wait_time) < 5
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        end
+    end
+end
+
+% Creat trialText string
+trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
+
+
+for t = 1:nT_phase1 % Trial Loop
+    % In here, use interactions_matrix_phase1, with columns partner &
+    % share/keep (1/0)
+
+    % Identify partner number, their affiliation
+    tmp_partnerID = interaction_matrix_phase1(t,1);
+    if partner_matrix(tmp_partnerID,1) == 1
+        affiliation_txt = 'Democrat';
+    elseif partner_matrix(tmp_partnerID,1) == 0
+        affiliation_txt = 'Republican';
+    end
+
+    % Display the partner & their affiliation
+    trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
+    Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
+
+    time_trial_start = GetSecs;
+
+    while (GetSecs - time_trial_start) < showpartner_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
             if keyCode(esc_key_code)
                 sca
                 error('Experiment aborted by user!');
-            elseif all(keyCode(resp_key_codes))
-                break
             end
         end
     end
-    
-    Screen('FillRect', wind, wht);
-    DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
-    pre_study_wait_time = GetSecs;
+
+
+    DrawFormattedText(wind,trialText, 'center', screenheight * 0.85);
     Screen('Flip', wind);
-    while (GetSecs - pre_study_wait_time) < 5
+
+    time_response_window_start = GetSecs;
+
+    % Code to collect response
+    while GetSecs - time_response_window_start < max_response_window_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1); %record keycode
+        %if keyIsDown
+        if (keyIsDown && size(find(keyCode),2) ==1)
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user'); % allow aborting the study here
+            elseif any(keyCode(resp_key_codes)) % IF the pressed key matches a response key...
+                subjDataPhase1.data.participant_offer_RT(t) = GetSecs - time_response_window_start; % record RT
+                %which key code, did they push the f, g, h, j key? if its f that
+                %means they sent 1, (2,3,4 etc.) whichever is correct you store
+                %into the variable, use keyCode to see which keycode they
+                %decided to push
+                break % change screen as soon as they respond
+            end
+        end
+    end
+
+
+    % ISI (brief screen break w/ fixation point)
+    DrawFormattedText(wind,'+', 'center', 'center');
+    Screen('Flip', wind);
+    time_isi_start = GetSecs;
+
+    while (GetSecs - time_isi_start) < isi_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
             if keyCode(esc_key_code)
@@ -451,134 +533,58 @@ end
             end
         end
     end
-    
-    % Creat trialText string
-    trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
-    
-    
-    for t = 1:nT_phase1 % Trial Loop
-        % In here, use interactions_matrix_phase1, with columns partner &
-        % share/keep (1/0)
-        
-        %show affiliation
-        tmp_partnerID = interaction_matrix_phase1(t,1); 
-        if partner_matrix(tmp_partnerID,1) == 1
-            affiliation_txt = 'Democrat';
-        elseif partner_matrix(tmp_partnerID,1) == 0
-            affiliation_txt = 'Republican';
-        end
-        
-        
-        trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID)); 
-        Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
-        %affiliation text 
-        DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
-        Screen('Flip', wind, [], 1);
-        
-        time_trial_start = GetSecs;
-        
-        while (GetSecs - time_trial_start) < 1
-            [keyIsDown,~,keyCode] = KbCheck(-1);
-            if keyIsDown
-                if keyCode(esc_key_code)
-                    sca
-                    error('Experiment aborted by user!');
-                end
-            end
-        end
+    %Show partner's response
+    %similar to the very beginning, pop up face affiliation, instead
+    %of response prompt if the partner (share/keep), corresponding to column 2
+    %interactions_matrix_phase1 (t,2)
+    %473-475, one more line thats share/keep
 
-        
-        DrawFormattedText(wind,trialText, 'center', screenheight * 0.85);
-        Screen('Flip', wind); 
-        
-        time_response_window_start = GetSecs;
 
-        % Code to collect response
-        while GetSecs - time_response_window_start < 2
-            [keyIsDown,~,keyCode] = KbCheck(-1); %record keycode
-            %if keyIsDown
-            if (keyIsDown && size(find(keyCode),2) ==1)
-                if keyCode(esc_key_code)
-                    error('Experiment aborted by user'); % allow aborting the study here
-                elseif any(keyCode(resp_key_codes)) % IF the pressed key matches a response key...
-                    subjDataPhase1.data.participant_offer_RT(t) = GetSecs - time_response_window_start; % record RT
-                    %which key code, did they push the f, g, h, j key? if its f that
-                    %means they sent 1, (2,3,4 etc.) whichever is correct you store
-                    %into the variable, use keyCode to see which keycode they
-                    %decided to push
-                    break % change screen as soon as they respond
-                end
-            end
-        end
+    % ITI (brief inter-trial break w/ fixation point)
+    DrawFormattedText(wind,'+', 'center', 'center');
+    Screen('Flip', wind);
+    time_iti_start = GetSecs;
 
-        
-        % ISI (brief screen break)
-        %fixation point, wait for 1 sec
-        DrawFormattedText(wind,'+', 'center', 'center');
-        Screen('Flip', wind);
-        time_isi_start = GetSecs;
-        
-        while (GetSecs - time_isi_start) < 1
-            [keyIsDown,~,keyCode] = KbCheck(-1);
-            if keyIsDown
-                if keyCode(esc_key_code)
-                    sca
-                    error('Experiment aborted by user!');
-                end
+    while (GetSecs - time_iti_start) < iti_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
             end
         end
-           %Show partner's response
-           %similar to the very beginning, pop up face affiliation, instead
-           %of response prompt if the partner (share/keep), corresponding to column 2
-           %interactions_matrix_phase1 (t,2)
-           %473-475, one more line thats share/keep
-         
-     
-        % ITI (brief inter-trial break)
-        %fixation point, wait for 2sec
-        DrawFormattedText(wind,'+', 'center', 'center');
-        Screen('Flip', wind);
-        time_iti_start = GetSecs;
-        
-        while (GetSecs - time_iti_start) < 2
-            [keyIsDown,~,keyCode] = KbCheck(-1);
-            if keyIsDown
-                if keyCode(esc_key_code)
-                    sca
-                    error('Experiment aborted by user!');
-                end
-            end
-        end
-        
-      
-        % Code to save response & related info
-        % Save data in...
-        % subjDataPhase1.data.participant_offer_choice (dollar amount)
-        % subjDataPhase1.data.participant_offer_RT (in ms)
-        % subjDataPhase1.data.phase1trial_total_received (not-offered +
-        % shared)
-        
     end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% END PHASE 1
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %show end text
-        Screen('FillRect', wind, gry);
-        DrawFormattedText(wind, 'You''ve completed the first phase of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
-        Screen('Flip', wind);
-        while 1
-            [keyIsDown,~,keyCode] = KbCheck(-1);
-            if keyIsDown
-                if keyCode(esc_key_code)
-                    error('Experiment aborted by user!');
-                elseif any(keyCode(trig_key_code))
-                    break
-                end
-            end
+
+
+    % Code to save response & related info
+    % Save data in...
+    % subjDataPhase1.data.participant_offer_choice (dollar amount)
+    % subjDataPhase1.data.participant_offer_RT (in ms)
+    % subjDataPhase1.data.phase1trial_total_received (not-offered +
+    % shared)
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% END PHASE 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%show end text
+Screen('FillRect', wind, gry);
+DrawFormattedText(wind, 'You''ve completed the first phase of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif any(keyCode(trig_key_code))
+            break
         end
-        
-        %OPENING INSTRUCTIONS/SCREENS FOR PHASE 2 
-            
+    end
+end
+
+%OPENING INSTRUCTIONS/SCREENS FOR PHASE 2
+
 
 sca
