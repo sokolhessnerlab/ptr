@@ -1,4 +1,4 @@
-function [subjData] = ptr_experiment_script(subjID, runfullversion)
+function [subjData] = ptr_experiment_script(subjID, runfullversion, doinstr)
 %
 % subjID must be a 3-character string (e.g. '003')
 % testMode must be either 0 (do the fully study) or 1 (do not do the study)
@@ -24,6 +24,9 @@ function [subjData] = ptr_experiment_script(subjID, runfullversion)
 %
 % set up defaults
 Screen('Preference', 'SkipSyncTests', 1); %skips sync tests for monitor relay timing (for use during testing w/ dual monitor)
+if nargin < 3
+    doinstr = 1; % assume that we do the instructions
+end
 if nargin < 2
     runfullversion = 0; % assume that we run the short version of the study
 end
@@ -54,7 +57,7 @@ Screen('TextFont', wind, 'default');
 
 % Show Loading Screen
 DrawFormattedText(wind, 'Setting up...', 'center', 'center', blk);
-Screen(wind,'Flip');
+Screen(wind,'Flip',[],1);
 
 % Set Random Number Generator
 rng('shuffle');
@@ -80,19 +83,25 @@ space_key_code = KbName('space'); %For participant to advance the screen
 esc_key_code = KbName('ESCAPE'); % Abort key
 trig_key_code = KbName('Return'); % experimenter advance key
 
+DrawFormattedText(wind,'.', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
+
 % Capture Keypresses & don't affect the editor/console
 if runfullversion == 1
     ListenChar(2);
 end
 
 % Define trial timing
-showpartner_duration = 1; %
+showpartner_phase1_duration = 2;
+showpartner_phase2_duration = 2.5;
 max_response_window_duration = 2;
 isi_duration = 1;
 outcome_duration = 1.5;
 iti_duration = 2;
 
 disp('Beginning partner setup')
+DrawFormattedText(wind,'..', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
 
 % Number of Partners to interact with
 numPartners = 8; % interact with 8 partners
@@ -129,6 +138,9 @@ partner_matrix(1:2,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(1)
 partner_matrix(3:4,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(2));
 partner_matrix(5:6,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(3));
 partner_matrix(7:8,3:4) = gender_race_matrix(:,:,rand_order_gender_race_index(4));
+
+DrawFormattedText(wind,'...', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
 
 %{
 % All possible combos of gender/race that ensure at least one differs
@@ -186,7 +198,11 @@ img_location_rect = [screenwidth*.5 - original_image_width*image_display_ratio*.
 
 allimages = nan(original_image_height,original_image_width,3,numPartners); % pixels, pixels, RGB, partner
 
+DrawFormattedText(wind,'....', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
+
 for partner = 1:numPartners
+    
     if partner_matrix(partner,3) == 1
         tmp_gender = 'F';
     elseif partner_matrix(partner,3) == 0
@@ -209,10 +225,14 @@ for partner = 1:numPartners
 
     fnames(partner) = fnames_for_loading(image_number);
 
-    allimages(:,:,:,partner) = imread([relative_image_path fnames(image_number).name]);
+    allimages(:,:,:,partner) = imread([relative_image_path fnames(partner).name]);
 
     fnames_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements
 end
+
+DrawFormattedText(wind,'.....', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
+
 
 disp('Partner images loaded. Setting up parts 1 & 2.')
 
@@ -223,11 +243,6 @@ partner_matrix = partner_matrix(shuffle_order,:);
 allimages = allimages(:,:,:,shuffle_order);
 
 % % Number of trials per partner in Phase 1 (first mover)
-% if runfullversion == 1
-%     nT_per_partner = 10;
-% else
-%     nT_per_partner = 2;
-% end
 
 nT_per_partner = 10;
 nT_phase1 = numPartners * nT_per_partner;
@@ -243,6 +258,9 @@ interaction_matrix_phase1_part3 = repmat(1:numPartners,[1,3])'; % 24 trials, 3 i
 interaction_matrix_phase1_part1(:,2) = nan;
 interaction_matrix_phase1_part2(:,2) = nan;
 interaction_matrix_phase1_part3(:,2) = nan;
+
+DrawFormattedText(wind,'......', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
 
 % Using the partner rate from the partner matrix, fill in their actions
 for partner = 1:numPartners
@@ -281,6 +299,9 @@ interactions_matrix_phase2_part2 = repmat(1:numPartners,[1,5])'; % 40 trials, Ro
 interaction_matrix_phase2_part1(:,2) = nan;
 interactions_matrix_phase2_part2(:,2) = nan;
 
+DrawFormattedText(wind,'.......', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
+
 % Fill in their actions (all actions are the same)
 for partner = 1:numPartners
     %what rows are for each partners in each matrix [partner = 1:8]
@@ -301,6 +322,8 @@ interaction_matrix_phase2 = [interaction_matrix_phase2_part1; interactions_matri
 % Set-up file to path disk
 
 disp('Part 2 setup complete. Creating placeholders for data.')
+DrawFormattedText(wind,'.......', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
 
 %%% Create variables to store participants' responses, RTs, and outcomes
 
@@ -320,6 +343,9 @@ phase2trial_total_received = nan(nT_phase2,1);
 %Create Data Table
 subjDataPhase2.data = table(participant_sharekeep_choice, participant_sharekeep_RT, phase2trial_total_received);
 
+DrawFormattedText(wind,'........', screenwidth*.2, screenheight*.8);
+Screen(wind,'Flip',[],1);
+
 %%% Save out stimuli & setup variables
 study_parameters = struct();
 study_parameters.numPartners = numPartners;
@@ -336,6 +362,7 @@ study_parameters.interaction_matrix_phase1 = interaction_matrix_phase1;
 study_parameters.interaction_matrix_phase2 = interaction_matrix_phase2;
 
 save(sprintf('study_parameters_PTR%s_%.4f.mat',subjID,now),'study_parameters')
+Screen('Flip',wind);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Waiting for Experimenter Screen
@@ -367,13 +394,12 @@ instructStr{1} = ['As a reminder, in the following task, you will be interacting
 instructStr{2} = ['It is well known that faces are particularly important for helping us gather social information. '...
     'For this reason, and to give you a better sense of whom you are interacting with, '...
     'we will provide you with a picture of your partner, along with additional demographic information.'];
-instructStr{3} = ['For each interaction, you will see a picture of your partner''s face '...
-    'and then choose how much money you want to share with that partner ($1, $2, $3, or $4) out of $4. You will keep any '...
-    'money you don''t send to your partner.'];
-instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either '...
+instructStr{3} = ['For each interaction, you will see a picture of your partner''s face, like this.'];
+instructStr{4} = ['You will then choose how much money you want to share with that partner ($1, $2, $3, or $4) out of $4. You will keep any '...
+    'money you don''t send to your partner. \n\n The money that you choose to send will TRIPLE in amount. Your partner will then decide to either '...
     'share half of the money with you or keep all of the money for themselves.'];
 instructStr{5} = ['When you''ve made your decision, press the keys f, g, h, or j to send $1, $2, $3, or $4, respectively (e.g., '...
-    'to send $3, press the h key). Please keep your fingers on these keys at all times during the study. You will have TWO (2) seconds '...
+    'to send $3, press the h key). Please keep your fingers on these keys at all times during the study.\n\nYou will have TWO (2) seconds '...
     'to enter your response. If you do not respond within 2 seconds, you will lose all $4 on that trial and your '...
     'partner will receive no money. Please respond in time!!'];
 instructStr{6} = ['In an example interaction, you might see the photo of your partner alongside other information, '...
@@ -382,33 +408,35 @@ instructStr{6} = ['In an example interaction, you might see the photo of your pa
 instructStr{7} = ['After each choice you make, you will see your partner''s decision (to share or keep the money) '...
     'before moving on to the next interaction. In this phase you will complete a total of 80 interactions (10 with each partner).'];
 
-%for loop for instruction strings
-for loopCnt = 1:length(instructStr)
-
-    DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk); %what is the rect?
-    DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify
-    %Want to link an example stimuli image to string 3 that the participant
-    %can reference%
-    if loopCnt == 3
-        path_to_instruction_image = [relative_image_path 'instruction_stim/CFD-BF-030-002-N.jpg'];
-        stim_image = imread(path_to_instruction_image);
-        stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image
-        Screen('DrawTexture', wind, stim_image_txt,[],img_location_rect);
-    end
-    Screen('Flip',wind,[],1);
-
-    WaitSecs(3);
-
-    DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
-    Screen('Flip', wind);
-
-    while 1
-        [keyIsDown,~,keyCode] = KbCheck(-1);
-        if keyIsDown && any(keyCode(space_key_code))
-            break
-        elseif keyIsDown && keyCode(esc_key_code)
-            sca
-            error('Experiment aborted by user!');
+if doinstr
+    %for loop for instruction strings
+    for loopCnt = 1:length(instructStr)
+        
+        DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk); %what is the rect?
+        DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify
+        %Want to link an example stimuli image to string 3 that the participant
+        %can reference%
+        if loopCnt == 3
+            path_to_instruction_image = [relative_image_path 'instruction_stim/CFD-BF-030-002-N.jpg'];
+            stim_image = imread(path_to_instruction_image);
+            stim_image_txt = Screen('MakeTexture', wind, stim_image); % make texture for image
+            Screen('DrawTexture', wind, stim_image_txt,[],img_location_rect);
+        end
+        Screen('Flip',wind,[],1);
+        
+        WaitSecs(3);
+        
+        DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
+        Screen('Flip', wind);
+        
+        while 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown && any(keyCode(space_key_code))
+                break
+            elseif keyIsDown && keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
         end
     end
 end
@@ -427,6 +455,14 @@ while 1
             break
         end
     end
+end
+
+% Shorten the task if it's not the full version
+% (must be here not above b/c of stimulus creation code that relies
+% on 80 trials total per phase)
+if runfullversion == 0
+    nT_phase1 = 10; 
+    nT_phase2 = 10;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -463,7 +499,7 @@ while (GetSecs - pre_study_wait_time) < 5
 end
 
 % Creat trialText string
-phase1_response_prompt_text = 'How much money would you like to share? \n\n $1     $2     $3     $4\n  f      g      h      j';
+phase1_response_prompt_text = '$1     $2     $3     $4';
 
 
 %%% PHASE 1 TRIAL LOOP %%%
@@ -490,7 +526,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     
     time_trial_start = GetSecs;
     
-    while (GetSecs - time_trial_start) < showpartner_duration
+    while (GetSecs - time_trial_start) < showpartner_phase1_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
             if keyCode(esc_key_code)
@@ -544,10 +580,12 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     end % while
     
     
-    %%% Part 3: ISI (brief screen break w/ fixation point)
+    %%% Part 3: ISI
     
-    DrawFormattedText(wind,'+', 'center', 'center');
-    Screen('Flip', wind);
+    Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
+    
     time_isi_start = GetSecs;
     
     while (GetSecs - time_isi_start) < isi_duration
@@ -564,20 +602,19 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     %%% Part 4: OUTCOME
     
     if isnan(subjDataPhase1.data.participant_offer_RT(t))
-        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', 'red');
+        Screen('Flip',wind);
+        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', [255 0 0]);
+        Screen('Flip',wind);
     else
         % Create share/keep text
         if interaction_matrix_phase1(t,2) == 1
-            sharekeep_text = 'Your partner decided to SHARE back with you.';
+            sharekeep_text = 'Partner''s decision: SHARE';
         elseif interaction_matrix_phase1(t,2) == 0
-            sharekeep_text = 'Your partner decided to KEEP the money you sent.';
+            sharekeep_text = 'Partner''s decision: KEEP';
         end
         
-        % Display the partner, their affiliation, and their decision
-        trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
-        Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
-        DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
-        DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.85);
+        % Add text w/ their share/keep decision
+        DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.8);
         Screen('Flip', wind);
     end
     
@@ -596,7 +633,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     
     %%% Part 5: ITI (brief inter-trial break w/ fixation point)
     
-    DrawFormattedText(wind,'+', 'center', 'center');
+    DrawFormattedText(wind,'+', 'center', 'center',[0 0 0]);
     Screen('Flip', wind);
     time_iti_start = GetSecs;
     
@@ -617,7 +654,7 @@ end % end trial loop for phase 1
 
 % show end text
 Screen('FillRect', wind, gry);
-DrawFormattedText(wind, 'You''ve completed the first part of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'You''ve completed the first part of this task.\n\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -637,39 +674,42 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Define the task instructions (being displayed to participant)
 
+instructStr = cell(0); % necessary to remove part 1 instructions
 instructStr{1} = ['As a reminder, in the next task, you will be interacting with the same 8 partners.'];
 instructStr{2} = ['This time, remember that the roles of the interaction are reversed. Your partners '...
     'can offer you $1, $2, $3, or $4 out of a total of $4. The amount they choose to send '...
-    'triples in value (so if they send $2, you receive $6. YOUR choice is now to either '...
+    'triples in value (so if they send $2, you receive $6.\n\nYOUR choice is now to either '...
     'share 50/50 the money you receive back with them, or keep it all for yourself.'];
 instructStr{3} = ['During each interaction, you will be shown your partner''s face, '...
-    'some information about them, and their offer. Once the response prompt appears on the '...
+    'some information about them, and their offer. \n\nOnce the response prompt appears on the '...
     'screen, you will have TWO (2) seconds to enter your response (to share or to keep).'];
 instructStr{4} = ['If you do not respond in time, you will forfeit all of the money offered '...
     'on that trial. Please be sure to respond during the response window!'];
 instructStr{5} = ['Use the ''f'' key to SHARE, and the ''j'' key to KEEP. Please keep your fingers '...
-    'on these keys at all times during the study.'];
-instructStr{7} = ['In this phase you will complete a total of 80 interactions (10 with each partner).'];
+    'on these two keys at all times during the study.'];
+instructStr{6} = ['In this phase you will complete a total of 80 interactions (10 with each partner).'];
 
-%for loop for instruction strings
-for loopCnt = 1:length(instructStr)
-
-    DrawFormattedText(wind, 'Reminders: Part 2', 'center', rect(4)*.1, blk); %what is the rect?
-    DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify
-    Screen('Flip',wind,[],1);
-
-    WaitSecs(3);
-
-    DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
-    Screen('Flip', wind);
-
-    while 1
-        [keyIsDown,~,keyCode] = KbCheck(-1);
-        if keyIsDown && any(keyCode(space_key_code))
-            break
-        elseif keyIsDown && keyCode(esc_key_code)
-            sca
-            error('Experiment aborted by user!');
+if doinstr
+    %for loop for instruction strings
+    for loopCnt = 1:length(instructStr)
+        
+        DrawFormattedText(wind, 'Reminders: Part 2', 'center', rect(4)*.1, blk); %what is the rect?
+        DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify
+        Screen('Flip',wind,[],1);
+        
+        WaitSecs(3);
+        
+        DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
+        Screen('Flip', wind);
+        
+        while 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown && any(keyCode(space_key_code))
+                break
+            elseif keyIsDown && keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
         end
     end
 end
@@ -694,7 +734,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% START PART 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Allow participant to start the task by pressing all 4 response keys.
+% Allow participant to start the task by pressing both response keys.
 DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
 DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
@@ -725,7 +765,7 @@ while (GetSecs - pre_study_wait_time) < 5
 end
 
 % Creat trialText string
-phase2_response_prompt_text = 'Would you like to\n\n SHARE         or         KEEP\n    f                j';
+phase2_response_prompt_text = 'SHARE         or         KEEP';
 
 
 %%% PHASE 1 TRIAL LOOP %%%
@@ -755,7 +795,7 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
     
     time_trial_start = GetSecs;
     
-    while (GetSecs - time_trial_start) < showpartner_duration
+    while (GetSecs - time_trial_start) < showpartner_phase2_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
             if keyCode(esc_key_code)
@@ -768,7 +808,7 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
     
     %%% Part 2: RESPONSE WINDOW
     
-    DrawFormattedText(wind,phase2_response_prompt_text, 'center', screenheight * 0.85);
+    DrawFormattedText(wind,phase2_response_prompt_text, 'center', screenheight * 0.9);
     Screen('Flip', wind);
     
     time_response_window_start = GetSecs;
@@ -806,28 +846,11 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
     end % while
     
     
-    %%% Part 3: ISI (brief screen break w/ fixation point)
-    
-    DrawFormattedText(wind,'+', 'center', 'center');
-    Screen('Flip', wind);
-    time_isi_start = GetSecs;
-    
-    while (GetSecs - time_isi_start) < isi_duration
-        [keyIsDown,~,keyCode] = KbCheck(-1);
-        if keyIsDown
-            if keyCode(esc_key_code)
-                sca
-                error('Experiment aborted by user!');
-            end
-        end
-    end
-    
-    
-    %%% Part 4: ITI
+    %%% Part 3: ITI
     
     if isnan(subjDataPhase2.data.participant_sharekeep_RT(t)) % IF THEY DO NOT RESPOND IN TIME
         % 1. show the red text
-        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', 'red');
+        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', [255 0 0]);
 
         Screen('Flip', wind);
         time_non_response_start = GetSecs;
@@ -843,7 +866,7 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
         end
            
         % 2. show the normal '+' for the rest of the time
-        DrawFormattedText(wind,'+', 'center', 'center');
+        DrawFormattedText(wind,'+', 'center', 'center', [0 0 0]);
         Screen('Flip', wind);
         time_iti_start = GetSecs;
 
@@ -862,7 +885,7 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
         Screen('Flip', wind);
         time_iti_start = GetSecs;
 
-        while (GetSecs - time_iti_start) < isi_duration
+        while (GetSecs - time_iti_start) < iti_duration
             [keyIsDown,~,keyCode] = KbCheck(-1);
             if keyIsDown
                 if keyCode(esc_key_code)
@@ -881,7 +904,7 @@ end % end trial loop for phase 2
 
 % show end text
 Screen('FillRect', wind, gry);
-DrawFormattedText(wind, 'You''ve completed the second part of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'You''ve completed the second part of this task.\n\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -891,6 +914,9 @@ while 1
             error('Experiment aborted by user!');
         elseif any(keyCode(trig_key_code))
             sca
+            break
         end
     end
 end
+
+% CODE HERE FOR SAVING OUT THE DATA TO A FILE!
