@@ -72,8 +72,10 @@ end
 KbName('UnifyKeyNames'); %for OS X
 
 %Define Response Keys
-resp_keys = {'f', 'g', 'h', 'j'}; %For $1, $2, $3, $4
-resp_key_codes = KbName(resp_keys);
+resp_keys_phase1 = {'f', 'g', 'h', 'j'}; %For $1, $2, $3, $4
+resp_key_codes_phase1 = KbName(resp_keys_phase1);
+resp_keys_phase2 = {'f','j'}; %for SHARE & KEEP
+resp_key_codes_phase2 = KbName(resp_keys_phase2);
 space_key_code = KbName('space'); %For participant to advance the screen
 esc_key_code = KbName('ESCAPE'); % Abort key
 trig_key_code = KbName('Return'); % experimenter advance key
@@ -87,7 +89,7 @@ end
 showpartner_duration = 1; %
 max_response_window_duration = 2;
 isi_duration = 1;
-outcome_duration = 1;
+outcome_duration = 1.5;
 iti_duration = 2;
 
 disp('Beginning partner setup')
@@ -212,7 +214,7 @@ for partner = 1:numPartners
     fnames_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements
 end
 
-disp('Partner images loaded. Setting up part 2.')
+disp('Partner images loaded. Setting up parts 1 & 2.')
 
 % shuffle the partner matrix
 shuffle_order = randperm(numPartners);
@@ -356,25 +358,29 @@ while 1
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Instructions
+%%% Instructions: PHASE 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Define the task instructions (being displayed to participant)
 
 instructStr{1} = ['As a reminder, in the following task, you will be interacting with 8 hypothetical partners. '...
-    'However, please treat these partners as if they were real people you are interacting with.'];
+    'Please treat these partners as if they were real people you are interacting with.'];
 instructStr{2} = ['It is well known that faces are particularly important for helping us gather social information. '...
     'For this reason, and to give you a better sense of whom you are interacting with, '...
     'we will provide you with a picture of your partner, along with additional demographic information.'];
 instructStr{3} = ['For each interaction, you will see a picture of your partner''s face '...
-    'and then choose how much money you want to share with that partner ($1, $2, $3, or $4).'];
+    'and then choose how much money you want to share with that partner ($1, $2, $3, or $4) out of $4. You will keep any '...
+    'money you don''t send to your partner.'];
 instructStr{4} = ['The money that you choose to send will TRIPLE in amount. Your partner will then decide to either '...
     'share half of the money with you or keep all of the money for themselves.'];
 instructStr{5} = ['When you''ve made your decision, press the keys f, g, h, or j to send $1, $2, $3, or $4, respectively (e.g., '...
-    'to send $3, press the h key). Please keep your fingers on these keys at all times during the study. Then if you want to advance to your next interaction press the space bar.'];
-instructStr{6} = ['Here is an example of an interaction: You see the photo of your partner alongside other attribute information, '...
-    'and decide to share $2 of your money with them. This money then triples (becoming $6). '...
-    'Your partner then has the chance to share $3 with you and keep $3 for themselves, or keep all $6.']; %change this last sentence, want to make sure that they remember who they are dealing with%
-instructStr{7} = ['In this phase you will complete a total of 80 interactions (10 with each partner).'];
+    'to send $3, press the h key). Please keep your fingers on these keys at all times during the study. You will have TWO (2) seconds '...
+    'to enter your response. If you do not respond within 2 seconds, you will lose all $4 on that trial and your '...
+    'partner will receive no money. Please respond in time!!'];
+instructStr{6} = ['In an example interaction, you might see the photo of your partner alongside other information, '...
+    'and decide to share $3 of your money with them, keeping $1 for yourself. The $3 then triples (becoming $9). '...
+    'Your partner then has the chance to share $4.50 with you and keep $4.50 for themselves, or keep all $9.']; %change this last sentence, want to make sure that they remember who they are dealing with%
+instructStr{7} = ['After each choice you make, you will see your partner''s decision (to share or keep the money) '...
+    'before moving on to the next interaction. In this phase you will complete a total of 80 interactions (10 with each partner).'];
 
 %for loop for instruction strings
 for loopCnt = 1:length(instructStr)
@@ -399,8 +405,6 @@ for loopCnt = 1:length(instructStr)
     while 1
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown && any(keyCode(space_key_code))
-            %             DrawFormattedText(wind, 'Reminders: Part 1', 'center', rect(4)*.1, blk);
-            %             Screen('Flip', wind);
             break
         elseif keyIsDown && keyCode(esc_key_code)
             sca
@@ -409,7 +413,7 @@ for loopCnt = 1:length(instructStr)
     end
 end
 
-%Check-In
+% Check-In
 Screen('FillRect', wind, gry);
 DrawFormattedText(wind, 'This is the end of the instructions! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen(wind,'Flip');
@@ -426,12 +430,11 @@ while 1
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% START EXPERIMENT
+%%% START PART 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Need to add political affiliation text + age
 % Allow participant to start the task by pressing all 4 response keys.
 DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, or j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -439,7 +442,7 @@ while 1
         if keyCode(esc_key_code)
             sca
             error('Experiment aborted by user!');
-        elseif all(keyCode(resp_key_codes))
+        elseif all(keyCode(resp_key_codes_phase1))
             break
         end
     end
@@ -513,7 +516,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
             if keyCode(esc_key_code)
                 sca
                 error('Experiment aborted by user'); % allow aborting the study here
-            elseif any(keyCode(resp_key_codes)) % IF the pressed key matches a response key...
+            elseif any(keyCode(resp_key_codes_phase1)) % IF the pressed key matches a response key...
 
                 % Record RT
                 subjDataPhase1.data.participant_offer_RT(t) = resp_time - time_response_window_start; % record RT
@@ -560,19 +563,23 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     
     %%% Part 4: OUTCOME
     
-    % Create share/keep text
-    if interaction_matrix_phase1(t,2) == 1
-        sharekeep_text = 'Your partner decided to SHARE back with you.';
-    elseif interaction_matrix_phase1(t,2) == 0
-        sharekeep_text = 'Your partner decided to KEEP the money you sent.';
+    if isnan(subjDataPhase1.data.participant_offer_RT(t))
+        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', 'red');
+    else
+        % Create share/keep text
+        if interaction_matrix_phase1(t,2) == 1
+            sharekeep_text = 'Your partner decided to SHARE back with you.';
+        elseif interaction_matrix_phase1(t,2) == 0
+            sharekeep_text = 'Your partner decided to KEEP the money you sent.';
+        end
+        
+        % Display the partner, their affiliation, and their decision
+        trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
+        Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+        DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+        DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.85);
+        Screen('Flip', wind);
     end
-    
-    % Display the partner, their affiliation, and their decision
-    trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
-    Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
-    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
-    DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.85); 
-    Screen('Flip', wind); 
     
     time_outcome_start = GetSecs;
     
@@ -610,7 +617,7 @@ end % end trial loop for phase 1
 
 % show end text
 Screen('FillRect', wind, gry);
-DrawFormattedText(wind, 'You''ve completed the first phase of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'You''ve completed the first part of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -624,7 +631,266 @@ while 1
     end
 end
 
-%OPENING INSTRUCTIONS/SCREENS FOR PHASE 2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Instructions: PHASE 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Define the task instructions (being displayed to participant)
+
+instructStr{1} = ['As a reminder, in the next task, you will be interacting with the same 8 partners.'];
+instructStr{2} = ['This time, remember that the roles of the interaction are reversed. Your partners '...
+    'can offer you $1, $2, $3, or $4 out of a total of $4. The amount they choose to send '...
+    'triples in value (so if they send $2, you receive $6. YOUR choice is now to either '...
+    'share 50/50 the money you receive back with them, or keep it all for yourself.'];
+instructStr{3} = ['During each interaction, you will be shown your partner''s face, '...
+    'some information about them, and their offer. Once the response prompt appears on the '...
+    'screen, you will have TWO (2) seconds to enter your response (to share or to keep).'];
+instructStr{4} = ['If you do not respond in time, you will forfeit all of the money offered '...
+    'on that trial. Please be sure to respond during the response window!'];
+instructStr{5} = ['Use the ''f'' key to SHARE, and the ''j'' key to KEEP. Please keep your fingers '...
+    'on these keys at all times during the study.'];
+instructStr{7} = ['In this phase you will complete a total of 80 interactions (10 with each partner).'];
+
+%for loop for instruction strings
+for loopCnt = 1:length(instructStr)
+
+    DrawFormattedText(wind, 'Reminders: Part 2', 'center', rect(4)*.1, blk); %what is the rect?
+    DrawFormattedText(wind, instructStr{loopCnt}, 'center', rect(4)*.2, blk, 55, [], [], 1.4); %not sure what numbers to specify
+    Screen('Flip',wind,[],1);
+
+    WaitSecs(3);
+
+    DrawFormattedText(wind, 'Press the space bar to continue when ready.', 'center', rect(4)*.9, blk);
+    Screen('Flip', wind);
+
+    while 1
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown && any(keyCode(space_key_code))
+            break
+        elseif keyIsDown && keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        end
+    end
+end
+
+% Check-In
+Screen('FillRect', wind, gry);
+DrawFormattedText(wind, 'This is the end of the reminders for part 2! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
+Screen(wind,'Flip');
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif any(keyCode(trig_key_code))
+            break
+        end
+    end
+end
 
 
-sca
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% START PART 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Allow participant to start the task by pressing all 4 response keys.
+DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif sum(keyCode(resp_key_codes_phase2))==2 % Only 2 keys being pressed!
+            break
+        end
+    end
+end
+
+Screen('FillRect', wind, wht);
+DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
+pre_study_wait_time = GetSecs;
+Screen('Flip', wind);
+while (GetSecs - pre_study_wait_time) < 5
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        end
+    end
+end
+
+% Creat trialText string
+phase2_response_prompt_text = 'Would you like to\n\n SHARE         or         KEEP\n    f                j';
+
+
+%%% PHASE 1 TRIAL LOOP %%%
+
+for t = 1:nT_phase2 % Phase 1 Trial Loop
+    % In here, use interactions_matrix_phase2, with columns partner &
+    % offer ($1, 2, 3, or 4)
+
+    % Identify partner number, their affiliation
+    tmp_partnerID = interaction_matrix_phase2(t,1);
+    if partner_matrix(tmp_partnerID,1) == 1
+        affiliation_txt = 'Democrat';
+    elseif partner_matrix(tmp_partnerID,1) == 0
+        affiliation_txt = 'Republican';
+    end
+
+    offer_text = sprintf('Offer: $%i. Received: $%i',interaction_matrix_phase2(t,2), interaction_matrix_phase2(t,2)*3);
+    
+    %%% Part 1: PARTNER DISPLAY
+    
+    % Display the partner & their affiliation
+    trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
+    Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    DrawFormattedText(wind, offer_text, 'center', screenheight*.8);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
+    
+    time_trial_start = GetSecs;
+    
+    while (GetSecs - time_trial_start) < showpartner_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
+    
+    
+    %%% Part 2: RESPONSE WINDOW
+    
+    DrawFormattedText(wind,phase2_response_prompt_text, 'center', screenheight * 0.85);
+    Screen('Flip', wind);
+    
+    time_response_window_start = GetSecs;
+    
+    % Code to collect response
+    while GetSecs - time_response_window_start < max_response_window_duration
+        [keyIsDown,resp_time,keyCode] = KbCheck(-1); %record keycode
+        %if keyIsDown
+        if (keyIsDown && size(find(keyCode),2) ==1)
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user'); % allow aborting the study here
+            elseif any(keyCode(resp_key_codes_phase2)) % IF the pressed key matches a response key...
+
+                % Record RT
+                subjDataPhase2.data.participant_sharekeep_RT(t) = resp_time - time_response_window_start; % record RT
+
+                % Record choice
+                if strcmp(KbName(keyCode),'f')
+                    tmp_response= 1;
+                elseif strcmp(KbName(keyCode),'j')
+                    tmp_response = 0; 
+                end
+                subjDataPhase2.data.participant_sharekeep_choice(t) = tmp_response;
+
+                % Record their total on this trial (amount kept + returned
+                % amount if applicable).
+                subjDataPhase2.data.phase2trial_total_received(t) = ...
+                    interaction_matrix_phase2(t,2) * 1.5 * tmp_response + ... % if they share, it's 1.5x
+                    interaction_matrix_phase2(t,2) * 3 * (1-tmp_response);    % if they keep, it's 3x
+                    
+                break % change screen as soon as they respond
+            end % if response key
+        end % if keypress
+    end % while
+    
+    
+    %%% Part 3: ISI (brief screen break w/ fixation point)
+    
+    DrawFormattedText(wind,'+', 'center', 'center');
+    Screen('Flip', wind);
+    time_isi_start = GetSecs;
+    
+    while (GetSecs - time_isi_start) < isi_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
+    
+    
+    %%% Part 4: ITI
+    
+    if isnan(subjDataPhase2.data.participant_sharekeep_RT(t)) % IF THEY DO NOT RESPOND IN TIME
+        % 1. show the red text
+        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', 'red');
+
+        Screen('Flip', wind);
+        time_non_response_start = GetSecs;
+
+        while (GetSecs - time_non_response_start) < 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+           
+        % 2. show the normal '+' for the rest of the time
+        DrawFormattedText(wind,'+', 'center', 'center');
+        Screen('Flip', wind);
+        time_iti_start = GetSecs;
+
+        while (GetSecs - time_iti_start) < (iti_duration-1)
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+
+    else % BUT IF THEY DID RESPOND IN TIME, DO A NORMAL ITI
+        DrawFormattedText(wind,'+', 'center', 'center');
+        Screen('Flip', wind);
+        time_iti_start = GetSecs;
+
+        while (GetSecs - time_iti_start) < isi_duration
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+    end
+end % end trial loop for phase 2
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% END PHASE 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% show end text
+Screen('FillRect', wind, gry);
+DrawFormattedText(wind, 'You''ve completed the second part of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif any(keyCode(trig_key_code))
+            sca
+        end
+    end
+end
