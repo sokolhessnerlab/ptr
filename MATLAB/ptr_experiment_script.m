@@ -460,10 +460,12 @@ while (GetSecs - pre_study_wait_time) < 5
 end
 
 % Creat trialText string
-trialText = 'How much money would you like to share? \n\n $1     $2     $3     $4';
+phase1_response_prompt_text = 'How much money would you like to share? \n\n $1     $2     $3     $4\n  f      g      h      j';
 
 
-for t = 1:nT_phase1 % Trial Loop
+%%% PHASE 1 TRIAL LOOP %%%
+
+for t = 1:nT_phase1 % Phase 1 Trial Loop
     % In here, use interactions_matrix_phase1, with columns partner &
     % share/keep (1/0)
 
@@ -494,29 +496,45 @@ for t = 1:nT_phase1 % Trial Loop
     end
 
 
-    DrawFormattedText(wind,trialText, 'center', screenheight * 0.85);
+    DrawFormattedText(wind,phase1_response_prompt_text, 'center', screenheight * 0.85);
     Screen('Flip', wind);
 
     time_response_window_start = GetSecs;
 
     % Code to collect response
     while GetSecs - time_response_window_start < max_response_window_duration
-        [keyIsDown,~,keyCode] = KbCheck(-1); %record keycode
+        [keyIsDown,resp_time,keyCode] = KbCheck(-1); %record keycode
         %if keyIsDown
         if (keyIsDown && size(find(keyCode),2) ==1)
             if keyCode(esc_key_code)
                 sca
                 error('Experiment aborted by user'); % allow aborting the study here
             elseif any(keyCode(resp_key_codes)) % IF the pressed key matches a response key...
-                subjDataPhase1.data.participant_offer_RT(t) = GetSecs - time_response_window_start; % record RT
-                %which key code, did they push the f, g, h, j key? if its f that
-                %means they sent 1, (2,3,4 etc.) whichever is correct you store
-                %into the variable, use keyCode to see which keycode they
-                %decided to push
+
+                % Record RT
+                subjDataPhase1.data.participant_offer_RT(t) = resp_time - time_response_window_start; % record RT
+
+                % Record choice
+                if strcmp(KbName(keyCode),'f')
+                    tmp_offer = 1;
+                elseif strcmp(KbName(keyCode),'g')
+                    tmp_offer = 2;
+                elseif strcmp(KbName(keyCode),'h')
+                    tmp_offer = 3;
+                elseif strcmp(KbName(keyCode),'j')
+                    tmp_offer = 4; 
+                end
+                subjDataPhase1.data.participant_offer_choice(t) = tmp_offer;
+
+                % Record their total on this trial (amount kept + returned
+                % amount if applicable).
+                subjDataPhase1.data.phase1trial_total_received(t) = ...
+                    (4-tmp_offer) + tmp_offer * 3 * interaction_matrix_phase1(t,2);
+                    % amount kept       tripled offer * share/keep 1/0 variable
                 break % change screen as soon as they respond
-            end
-        end
-    end
+            end % if response key
+        end % if keypress
+    end % while
 
 
     % ISI (brief screen break w/ fixation point)
@@ -533,6 +551,14 @@ for t = 1:nT_phase1 % Trial Loop
             end
         end
     end
+    
+    
+    % Display the partner & their affiliation
+    trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
+    Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
+
     %Show partner's response
     %similar to the very beginning, pop up face affiliation, instead
     %of response prompt if the partner (share/keep), corresponding to column 2
