@@ -468,7 +468,7 @@ phase1_response_prompt_text = 'How much money would you like to share? \n\n $1  
 for t = 1:nT_phase1 % Phase 1 Trial Loop
     % In here, use interactions_matrix_phase1, with columns partner &
     % share/keep (1/0)
-
+    
     % Identify partner number, their affiliation
     tmp_partnerID = interaction_matrix_phase1(t,1);
     if partner_matrix(tmp_partnerID,1) == 1
@@ -476,15 +476,17 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     elseif partner_matrix(tmp_partnerID,1) == 0
         affiliation_txt = 'Republican';
     end
-
+    
+    %%% Part 1: PARTNER DISPLAY
+    
     % Display the partner & their affiliation
     trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
     Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
     Screen('Flip', wind, [], 1); % flip w/o clearing buffer
-
+    
     time_trial_start = GetSecs;
-
+    
     while (GetSecs - time_trial_start) < showpartner_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
@@ -494,13 +496,15 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
             end
         end
     end
-
-
+    
+    
+    %%% Part 2: RESPONSE WINDOW
+    
     DrawFormattedText(wind,phase1_response_prompt_text, 'center', screenheight * 0.85);
     Screen('Flip', wind);
-
+    
     time_response_window_start = GetSecs;
-
+    
     % Code to collect response
     while GetSecs - time_response_window_start < max_response_window_duration
         [keyIsDown,resp_time,keyCode] = KbCheck(-1); %record keycode
@@ -535,13 +539,14 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
             end % if response key
         end % if keypress
     end % while
-
-
-    % ISI (brief screen break w/ fixation point)
+    
+    
+    %%% Part 3: ISI (brief screen break w/ fixation point)
+    
     DrawFormattedText(wind,'+', 'center', 'center');
     Screen('Flip', wind);
     time_isi_start = GetSecs;
-
+    
     while (GetSecs - time_isi_start) < isi_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
@@ -553,24 +558,41 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     end
     
     
-    % Display the partner & their affiliation
+    %%% Part 4: OUTCOME
+    
+    % Create share/keep text
+    if interaction_matrix_phase1(t,2) == 1
+        sharekeep_text = 'Your partner decided to SHARE back with you.';
+    elseif interaction_matrix_phase1(t,2) == 0
+        sharekeep_text = 'Your partner decided to KEEP the money you sent.';
+    end
+    
+    % Display the partner, their affiliation, and their decision
     trial_stim_img = Screen('MakeTexture', wind, allimages(:,:,:,tmp_partnerID));
     Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
-    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
-
-    %Show partner's response
-    %similar to the very beginning, pop up face affiliation, instead
-    %of response prompt if the partner (share/keep), corresponding to column 2
-    %interactions_matrix_phase1 (t,2)
-    %473-475, one more line thats share/keep
-
-
-    % ITI (brief inter-trial break w/ fixation point)
+    DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.85); 
+    Screen('Flip', wind); 
+    
+    time_outcome_start = GetSecs;
+    
+    while (GetSecs - time_outcome_start) < outcome_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
+    
+    
+    %%% Part 5: ITI (brief inter-trial break w/ fixation point)
+    
     DrawFormattedText(wind,'+', 'center', 'center');
     Screen('Flip', wind);
     time_iti_start = GetSecs;
-
+    
     while (GetSecs - time_iti_start) < iti_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
@@ -580,21 +602,13 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
             end
         end
     end
-
-
-    % Code to save response & related info
-    % Save data in...
-    % subjDataPhase1.data.participant_offer_choice (dollar amount)
-    % subjDataPhase1.data.participant_offer_RT (in ms)
-    % subjDataPhase1.data.phase1trial_total_received (not-offered +
-    % shared)
-
-end
+end % end trial loop for phase 1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% END PHASE 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%show end text
+
+% show end text
 Screen('FillRect', wind, gry);
 DrawFormattedText(wind, 'You''ve completed the first phase of this task.\nPlease ring the bell to inform the experimenter!', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip', wind);
