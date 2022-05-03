@@ -466,6 +466,45 @@ if runfullversion == 0
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% START PART 1: PRACTICE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+DrawFormattedText(wind, 'Practice','center',screenheight*.1);
+DrawFormattedText(wind, 'Before starting the experiment, you will have five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
+Screen('Flip',wind,[],1);
+
+WaitSecs(1);
+
+DrawFormattedText (wind, 'To start the practice, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif all(keyCode(resp_key_codes_phase1))
+            break
+        end
+    end
+end
+Screen('FillRect', wind, wht);
+DrawFormattedText(wind, 'Beginning the practice in 5 seconds...', 'center','center');
+pre_study_wait_time = GetSecs;
+Screen('Flip', wind);
+while (GetSecs - pre_study_wait_time) < 5
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        end
+    end
+end
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% START PART 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Allow participant to start the task by pressing all 4 response keys.
