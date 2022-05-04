@@ -547,6 +547,44 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     % In here, use interactions_matrix_phase1, with columns partner &
     % share/keep (1/0)
     
+    % Block break code
+    if t == (nT_phase1/2 + 1) % if this trial is the first in the 2nd half
+        breaktext = ['You are halfway through this part of today''s study.\n\n'...
+            'You can now take a brief break. The task will continue automatically '...
+            'in 30 seconds or you can press all four response keys simultaneously '...
+            'to continue whenever you are ready.'];
+        
+        DrawFormattedText(wind, breaktext, 'center', 'center',[],55);
+        Screen('Flip', wind);
+        
+        breakttime_start = GetSecs;
+        
+        while (GetSecs - breakttime_start) < 30
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if all(keyCode(resp_key_codes_phase1))
+                    break
+                elseif keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+        
+        DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
+        pre_block_wait_time = GetSecs;
+        Screen('Flip', wind);
+        while (GetSecs - pre_block_wait_time) < 5
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+    end
+    
     % Identify partner number, their affiliation
     tmp_partnerID = interaction_matrix_phase1(t,1);
     if partner_matrix(tmp_partnerID,1) == 1
@@ -812,7 +850,45 @@ phase2_response_prompt_text = 'SHARE         or         KEEP';
 for t = 1:nT_phase2 % Phase 1 Trial Loop
     % In here, use interactions_matrix_phase2, with columns partner &
     % offer ($1, 2, 3, or 4)
-
+    
+    % Block break code
+    if t == (nT_phase2/2 + 1) % if this trial is the first in the 2nd half
+        breaktext = ['You are halfway through this part of today''s study.\n\n'...
+            'You can now take a brief break. The task will continue automatically '...
+            'in 30 seconds or you can press both response keys simultaneously '...
+            'to continue whenever you are ready.'];
+        
+        DrawFormattedText(wind, breaktext, 'center', 'center',[],55);
+        Screen('Flip', wind);
+        
+        breakttime_start = GetSecs;
+        
+        while (GetSecs - breakttime_start) < 30
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if sum(keyCode(resp_key_codes_phase2))==2
+                    break
+                elseif keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+        
+        DrawFormattedText(wind, 'Beginning the experiment in 5 seconds...', 'center','center');
+        pre_block_wait_time = GetSecs;
+        Screen('Flip', wind);
+        while (GetSecs - pre_block_wait_time) < 5
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+    end
+    
     % Identify partner number, their affiliation
     tmp_partnerID = interaction_matrix_phase2(t,1);
     if partner_matrix(tmp_partnerID,1) == 1
