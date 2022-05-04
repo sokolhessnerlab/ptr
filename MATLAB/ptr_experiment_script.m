@@ -185,7 +185,7 @@ disp('Partner setup complete. Loading images.')
 relative_image_path = '../stimuli/';
 fnames = dir([relative_image_path '*.jpg']);
 fnames_for_loading = fnames;
-outputpath = ['output' filesep];
+outputpath = ['.' filesep 'output' filesep];
 
 original_image_width = 2444;
 original_image_height = 1718;
@@ -363,6 +363,8 @@ study_parameters.interaction_matrix_phase2 = interaction_matrix_phase2;
 
 save(sprintf('study_parameters_PTR%s_%.4f.mat',subjID,now),'study_parameters')
 Screen('Flip',wind);
+
+output_filenamepath = sprintf('%sstudy_data_PTR%s_%.4f.mat',outputpath,subjID,now);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Waiting for Experimenter Screen
@@ -714,6 +716,8 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     Screen('Flip', wind);
     time_iti_start = GetSecs;
     
+    save(output_filenamepath,'subjDataPhase1','subjDataPhase2'); % save out data every trial
+    
     while (GetSecs - time_iti_start) < iti_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
@@ -969,6 +973,8 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
 
         Screen('Flip', wind);
         time_non_response_start = GetSecs;
+        
+        save(output_filenamepath,'subjDataPhase1','subjDataPhase2'); % save out data every trial
 
         while (GetSecs - time_non_response_start) < 1
             [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -983,9 +989,8 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
         % 2. show the normal '+' for the rest of the time
         DrawFormattedText(wind,'+', 'center', 'center', [0 0 0]);
         Screen('Flip', wind);
-        time_iti_start = GetSecs;
 
-        while (GetSecs - time_iti_start) < (iti_duration-1)
+        while (GetSecs - time_non_response_start) < iti_duration
             [keyIsDown,~,keyCode] = KbCheck(-1);
             if keyIsDown
                 if keyCode(esc_key_code)
@@ -999,6 +1004,8 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
         DrawFormattedText(wind,'+', 'center', 'center');
         Screen('Flip', wind);
         time_iti_start = GetSecs;
+        
+        save(output_filenamepath,'subjDataPhase1','subjDataPhase2'); % save out data every trial
 
         while (GetSecs - time_iti_start) < iti_duration
             [keyIsDown,~,keyCode] = KbCheck(-1);
