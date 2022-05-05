@@ -470,6 +470,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% START PART 1: PRACTICE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% load practice images, make a texture to load later on 
+
 DrawFormattedText(wind, 'Practice','center',screenheight*.1);
 DrawFormattedText(wind, 'Before starting the experiment, you will have five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip',wind,[],1);
@@ -503,6 +505,83 @@ while (GetSecs - pre_study_wait_time) < 5
     end
 end
 
+% Creat practice trialText string
+practice_response_prompt_text = '$1     $2     $3     $4';
+
+%Load the 4 images that are being used in practice
+
+for loopCnt = 1:5
+     % Parnter and their affiliation
+    practice_tmp_partnerID = interaction_matrix_phase1(loopCnt,1);
+    if partner_matrix(practice_tmp_partnerID,1) == 1
+        affiliation_txt = 'Democrat';
+    elseif partner_matrix(practice_tmp_partnerID,1) == 0
+        affiliation_txt = 'Republican';
+    end
+    
+    %4 image paths 
+    path_to_instruction_image1 = [relative_image_path 'practice_stim/CFD-BF-030-002-N.jpg'];
+    practice_stim_image1 = imread(path_to_instruction_image1);
+    stim_image_txt1 = Screen('MakeTexture', wind, practice_stim_image1); % make texture for image
+    Screen('DrawTexture', wind, stim_image_txt1, [], img_location_rect);
+    Screen('Flip', wind, [], 1);
+ 
+    path_to_instruction_image2 = [relative_image_path 'practice_stim/CFD-BM-036-003-N.jpg'];
+    practice_stim_image2 = imread(path_to_instruction_image2);
+    stim_image_txt2 = Screen('MakeTexture', wind, practice_stim_image2);
+    Screen('DrawTexture', wind, stim_image_txt2, [], img_location_rect);
+    Screen('Flip', wind, [], 1);
+    
+    
+    path_to_instruction_image3 = [relative_image_path 'practice_stim/CFD-WF-027-003-N.jpg'];
+    practice_stim_image3 = imread(path_to_instruction_image3);
+    stim_image_txt3 = Screen('MakeTexture', wind, practice_stim_image3);
+    Screen('DrawTexture', wind, stim_image_txt3, [], img_location_rect);
+    Screen('Flip', wind, [], 1);
+    
+    path_to_instruction_image4 = [relative_image_path 'practice_stim/CFD-WM-200-034-N.jpg'];
+    practice_stim_image4 = imread(path_to_instruction_image4);
+    stim_image_txt4 = Screen('MakeTexture', wind, practice_stim_image4);
+    Screen('DrawTexture', wind, stim_image_txt4, [], img_location_rect);
+    Screen('Flip', wind, [], 1);
+    
+    %display 4 partners with political affiliation
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1);
+    
+        
+    DrawFormattedText(wind,practice_response_prompt_text, 'center', screenheight * 0.85);
+    Screen('Flip', wind);
+    
+    practice_time_response_window_start = GetSecs;
+    
+    % Code to collect response
+    while GetSecs - practice_time_response_window_start < max_response_window_duration
+        [keyIsDown,resp_time,keyCode] = KbCheck(-1); %record keycode
+        %if keyIsDown
+        if (keyIsDown && size(find(keyCode),2) ==1)
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user'); % allow aborting the study here
+            elseif any(keyCode(resp_key_codes_phase1)) % IF the pressed key matches a response key...
+            end 
+        end
+        
+    end
+    
+    %NEED TO FINISH THIS^^^
+    
+    %Add ISI
+    
+    %Outcome
+    
+    %ITI
+   
+    
+    %End practice screen telling them they will start the actual experiment
+    %in 5 seconds...
+    
+end
 
 
 
@@ -538,6 +617,7 @@ while (GetSecs - pre_study_wait_time) < 5
         end
     end
 end
+
 
 % Creat trialText string
 phase1_response_prompt_text = '$1     $2     $3     $4';
