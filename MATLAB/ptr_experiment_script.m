@@ -474,14 +474,19 @@ end
 %Practice Image Path 
 numTotalPracticeTrials = 5;
 numTotalPracticeStim = 4;
-practice_image_path = dir([relative_image_path 'practice_stim/*.jpg']);
+practice_images = dir([relative_image_path 'practice_stim/*.jpg']);
+practice_for_loading = practice_images;
 
-DrawFormattedText(wind, 'Preparing practice task...', 'center', blk);
-Screen(wind, 'Flip');
+original_image_width = 2444;
+original_image_height = 1718;
+image_display_ratio = (screenheight/3)/original_image_height;
 
-%Randomize Image Array
-practice_image_path = practice_image_path(randperm(length(practice_image_path)));
-practice_stim = practice_image_path(1:numTotalPracticeStim);
+img_location_rect = [screenwidth*.5 - original_image_width*image_display_ratio*.5
+    screenheight*.5 - original_image_height*image_display_ratio*.5
+    screenwidth*.5 + original_image_width*image_display_ratio*.5
+    screenheight*.5 + original_image_height*image_display_ratio*.5]';
+
+practice_stimuli = nan(original_image_height,original_image_width,3,numTotalPracticeStim); %pixels, pixels, RGB, practice stim
     
 
 DrawFormattedText(wind, 'Practice','center',screenheight*.1);
@@ -506,8 +511,40 @@ end
 
 % Creat practice trialText string
 practice_response_prompt_text = '$1     $2     $3     $4';
+for partner = 1:numTotalPracticeStim
+    if partner_matrix(partner,3) == 1
+        tmp_practice_gender = 'F';
+    elseif partner_matrix(partner,3) == 0
+        tmp_practice_gender = 'M';
+    end
+ 
+     if partner_matrix(partner,4) == 1
+        tmp_practice_race = 'B';
+     elseif partner_matrix(partner,4) == 0
+        tmp_practice_race = 'W';
+     end
+ 
+    imgtxt = [tmp_practice_race tmp_practice_gender];
+ 
+    for image_number_practice = 1:length(practice_for_loading)
+        if strcmp(imgtxt,practice_for_loading(image_number_practice).name(5:6))
+            break
+        end
+    end
 
-for loopCnt = 1:numTotalPracticeTrials
+    practice_images(partner) = practice_for_loading(image_number);
+ 
+    practice_stimuli(:,:,partner) = imread([relative_image_path practice_images(partner).name]);
+ 
+    practice_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements
+end
+
+%STILL CAN'T GET THIS TO WORK ^ saying that the index exceeds the number of
+%array elements 
+
+%shuffle the images
+practice_shuffle_order = randperm(numTotalPracticeStim);
+practice_stimuli = practice_stimuli(:,:,:,practice_shuffle_order);
     
     %Political affiliation
     practice_tmp_partnerID = interaction_matrix_phase1(loopCnt,1);
@@ -520,13 +557,10 @@ for loopCnt = 1:numTotalPracticeTrials
     %%% Part 1: PARTNER DISPLAY
     
     % Display the partner & their affiliation
-    practice_stim_img = Screen('MakeTexture', wind, practice_stim(:,:,:,practice_tmp_partnerID));
+    practice_stim_img = Screen('MakeTexture', wind, practice_stimuli(:,:,:,practice_tmp_partnerID));
     Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
     Screen('Flip', wind, [], 1); % flip w/o clearing buffer
-    %I KEEP GETTING STUCK HERE
-    %ABOVE I AM GETTING THE ERROR: Index in position 4 exceeds array bounds
-    %(must not exceed 1), line 523
     
     time_trial_start = GetSecs;
     
@@ -577,9 +611,12 @@ for loopCnt = 1:numTotalPracticeTrials
         end % if keypress
     end % while
     
-    %Add ISI 
+       
+    %%% Practice: ISI
     
-    %wait till i get right texture from above to do this
+    Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
     
     time_isi_start = GetSecs;
     
@@ -594,15 +631,80 @@ for loopCnt = 1:numTotalPracticeTrials
     end
     
     
-    %Outcome
+    %%% Practice: OUTCOME
     
-    %ITI
-   
+    if isnan(subjDataPhase1.data.participant_offer_RT(t))
+        Screen('Flip',wind);
+        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', [255 0 0]);
+        Screen('Flip',wind);
+    else
+        % Create share/keep text
+        if interaction_matrix_phase1(t,2) == 1
+            sharekeep_text = 'Partner''s decision: SHARE';
+        elseif interaction_matrix_phase1(t,2) == 0
+            sharekeep_text = 'Partner''s decision: KEEP';
+        end
+        
+        % Add text w/ their share/keep decision
+        DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.8);
+        Screen('Flip', wind);
+    end
     
-    %End practice screen telling them they will start the actual experiment
-    %in 5 seconds...
+    time_outcome_start = GetSecs;
     
+    while (GetSecs - time_outcome_start) < outcome_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
+    
+    
+    %Practice ITI
+    DrawFormattedText(wind,'+', 'center', 'center',[0 0 0]);
+    Screen('Flip', wind);
+    time_iti_start = GetSecs;
+    
+    save(output_filenamepath,'subjDataPhase1','subjDataPhase2'); % save out data every trial
+    
+    %DON'T THINK WE NEED THE ABOVE?^, not trying to save out the data
+    
+    while (GetSecs - time_iti_start) < iti_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
+end % end practice loop for phase 1
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% END Practice: PHASE 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% show end text
+Screen('FillRect', wind, gry);
+DrawFormattedText(wind, 'You''ve completed the practice trails for phase 1.\n\nThe experiment will now begin.', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText (wind, 'To start the practice, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif all(keyCode(resp_key_codes_phase1))
+            break
+        end
+    end
 end
+   
+   
 
 
 
