@@ -472,6 +472,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load practice images, make a texture to load later on 
 %Practice Image Path 
+numTotalPracticeTrials = 5;
 numTotalPracticeStim = 4;
 practice_image_path = dir([relative_image_path 'practice_stim/*.jpg']);
 
@@ -506,11 +507,26 @@ end
 % Creat practice trialText string
 practice_response_prompt_text = '$1     $2     $3     $4';
 
-for loopCnt = 1:5
+for loopCnt = 1:numTotalPracticeTrials
+    
+    %Political affiliation
+    practice_tmp_partnerID = interaction_matrix_phase1(loopCnt,1);
+    if partner_matrix(practice_tmp_partnerID,1) == 1
+        affiliation_txt = 'Democrat';
+    elseif partner_matrix(practice_tmp_partnerID,1) == 0
+        affiliation_txt = 'Republican';
+    end
+    
+    %%% Part 1: PARTNER DISPLAY
+    
+    % Display the partner & their affiliation
+    practice_stim_img = Screen('MakeTexture', wind, practice_stim(:,:,:,practice_tmp_partnerID));
+    Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
     %I KEEP GETTING STUCK HERE
-    %ABOVE I LOADED AN ARRAY OF THE 4 IMAGES AND THOSE LOOK GOOD 
-    %ITS JUST PRESENTING THEM USING IMREAD AND PUTTING THEM WITHIN ONE TEXTURE THAT I CAN CALL I CAN'T
-    %FIGURE OUT
+    %ABOVE I AM GETTING THE ERROR: Index in position 4 exceeds array bounds
+    %(must not exceed 1), line 523
     
     time_trial_start = GetSecs;
     
@@ -563,7 +579,7 @@ for loopCnt = 1:5
     
     %Add ISI 
     
-    %PUT TEXTURE FROM ABOVE IMAGES HERE
+    %wait till i get right texture from above to do this
     
     time_isi_start = GetSecs;
     
