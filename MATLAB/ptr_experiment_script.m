@@ -474,23 +474,35 @@ end
 %Practice Image Path 
 numTotalPracticeTrials = 5;
 numTotalPracticeStim = 4;
-practice_images = dir([relative_image_path 'practice_stim/*.jpg']);
-practice_for_loading = practice_images;
+practice_image_fnames = dir([relative_image_path 'practice_stim/*.jpg']);
 
-original_image_width = 2444;
-original_image_height = 1718;
-image_display_ratio = (screenheight/3)/original_image_height;
+practice_images = nan(original_image_height,original_image_width,3,numTotalPracticeStim); %pixels, pixels, RGB, practice stim
 
-img_location_rect = [screenwidth*.5 - original_image_width*image_display_ratio*.5
-    screenheight*.5 - original_image_height*image_display_ratio*.5
-    screenwidth*.5 + original_image_width*image_display_ratio*.5
-    screenheight*.5 + original_image_height*image_display_ratio*.5]';
+for img_number = 1:numTotalPracticeTrials
+    practice_images(:,:,:,img_number) = imread([relative_image_path practice_image_fnames(img_number).name]);
+end
 
-practice_stimuli = nan(original_image_height,original_image_width,3,numTotalPracticeStim); %pixels, pixels, RGB, practice stim
-    
+% Creat practice trialText string
+practice_response_prompt_text = '$1     $2     $3     $4';
+
+% For practice, order doesn't matter, and can be the same across all
+% participants! And b/c we're not saving anything here, we don't need to
+% worry about e.g. race & gender. 
+
+practice_partner_order = [1 3 2 4 3];
+practice_partner_affiliations = {'Democrat';
+    'Republican'
+    'Democrat'
+    'Republican'};
+partner_responses = {'Partner''s decision: SHARE'
+    'Partner''s decision: SHARE'
+    'Partner''s decision: KEEP'
+    'Partner''s decision: SHARE'
+    'Partner''s decision: KEEP'};
+
 
 DrawFormattedText(wind, 'Practice','center',screenheight*.1);
-DrawFormattedText(wind, 'Before starting the experiment, you will have five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'Before starting the experiment, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip',wind,[],1);
 
 WaitSecs(1);
@@ -509,55 +521,29 @@ while 1
     end
 end
 
-% Creat practice trialText string
-practice_response_prompt_text = '$1     $2     $3     $4';
-for partner = 1:numTotalPracticeStim
-    if partner_matrix(partner,3) == 1
-        tmp_practice_gender = 'F';
-    elseif partner_matrix(partner,3) == 0
-        tmp_practice_gender = 'M';
-    end
- 
-     if partner_matrix(partner,4) == 1
-        tmp_practice_race = 'B';
-     elseif partner_matrix(partner,4) == 0
-        tmp_practice_race = 'W';
-     end
- 
-    imgtxt = [tmp_practice_race tmp_practice_gender];
- 
-    for image_number_practice = 1:length(practice_for_loading)
-        if strcmp(imgtxt,practice_for_loading(image_number_practice).name(5:6))
-            break
+Screen('FillRect', wind, wht);
+DrawFormattedText(wind, 'Beginning the practice trials in 5 seconds...', 'center','center');
+pre_study_wait_time = GetSecs;
+Screen('Flip', wind);
+while (GetSecs - pre_study_wait_time) < 5
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
         end
     end
-
-    practice_images(partner) = practice_for_loading(image_number);
- 
-    practice_stimuli(:,:,partner) = imread([relative_image_path practice_images(partner).name]);
- 
-    practice_for_loading(image_number) = []; % get rid of this image now we've used it. %issue with this line becasue the left and right sides have different number of elements
 end
 
-%STILL CAN'T GET THIS TO WORK ^ saying that the index exceeds the number of
-%array elements 
+for t = 1:numTotalPracticeTrials
 
-%shuffle the images
-practice_shuffle_order = randperm(numTotalPracticeStim);
-practice_stimuli = practice_stimuli(:,:,:,practice_shuffle_order);
-    
-    %Political affiliation
-    practice_tmp_partnerID = interaction_matrix_phase1(loopCnt,1);
-    if partner_matrix(practice_tmp_partnerID,1) == 1
-        affiliation_txt = 'Democrat';
-    elseif partner_matrix(practice_tmp_partnerID,1) == 0
-        affiliation_txt = 'Republican';
-    end
+    % Political affiliation & image prep
+    affiliation_txt = practice_partner_affiliations{practice_partner_order(t)};
+    practice_stim_img = Screen('MakeTexture', wind, practice_images(:,:,:,practice_partner_order(t)));
     
     %%% Part 1: PARTNER DISPLAY
     
     % Display the partner & their affiliation
-    practice_stim_img = Screen('MakeTexture', wind, practice_stimuli(:,:,:,practice_tmp_partnerID));
     Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
     Screen('Flip', wind, [], 1); % flip w/o clearing buffer
@@ -578,7 +564,7 @@ practice_stimuli = practice_stimuli(:,:,:,practice_shuffle_order);
     Screen('Flip', wind);
     
     practice_time_response_window_start = GetSecs;
-    
+    made_practice_offer = 0; 
    
     % Code to collect response
     while GetSecs - practice_time_response_window_start < max_response_window_duration
@@ -589,23 +575,12 @@ practice_stimuli = practice_stimuli(:,:,:,practice_shuffle_order);
                 sca
                 error('Experiment aborted by user'); % allow aborting the study here
             elseif any(keyCode(resp_key_codes_phase1)) % IF the pressed key matches a response key...
-                  % Record choice
-                if strcmp(KbName(keyCode),'f')
-                    tmp_offer = 1;
-                elseif strcmp(KbName(keyCode),'g')
-                    tmp_offer = 2;
-                elseif strcmp(KbName(keyCode),'h')
-                    tmp_offer = 3;
-                elseif strcmp(KbName(keyCode),'j')
-                    tmp_offer = 4; 
-                end
-                subjDataPhase1.data.participant_offer_choice(loopCnt) = tmp_offer;
+                
+                made_practice_offer = 1;
 
-                % Record their total on this trial (amount kept + returned
-                % amount if applicable).
-                subjDataPhase1.data.phase1trial_total_received(loopCnt) = ...
-                    (4-tmp_offer) + tmp_offer * 3 * interaction_matrix_phase1(loopCnt,2);
-                    % amount kept       tripled offer * share/keep 1/0 variable
+                % This is where response encoding would go if we were
+                % saving responses. 
+
                 break % change screen as soon as they respond
             end % if response key
         end % if keypress
@@ -633,17 +608,13 @@ practice_stimuli = practice_stimuli(:,:,:,practice_shuffle_order);
     
     %%% Practice: OUTCOME
     
-    if isnan(subjDataPhase1.data.participant_offer_RT(t))
+    if made_practice_offer == 0
         Screen('Flip',wind);
         DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', [255 0 0]);
         Screen('Flip',wind);
     else
-        % Create share/keep text
-        if interaction_matrix_phase1(t,2) == 1
-            sharekeep_text = 'Partner''s decision: SHARE';
-        elseif interaction_matrix_phase1(t,2) == 0
-            sharekeep_text = 'Partner''s decision: KEEP';
-        end
+        % Create share/keep text (random)
+        sharekeep_text = partner_responses{t};
         
         % Add text w/ their share/keep decision
         DrawFormattedText(wind, sharekeep_text, 'center', screenheight*0.8);
@@ -668,10 +639,6 @@ practice_stimuli = practice_stimuli(:,:,:,practice_shuffle_order);
     Screen('Flip', wind);
     time_iti_start = GetSecs;
     
-    save(output_filenamepath,'subjDataPhase1','subjDataPhase2'); % save out data every trial
-    
-    %DON'T THINK WE NEED THE ABOVE?^, not trying to save out the data
-    
     while (GetSecs - time_iti_start) < iti_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
@@ -687,24 +654,20 @@ end % end practice loop for phase 1
 %%% END Practice: PHASE 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% show end text
 Screen('FillRect', wind, gry);
-DrawFormattedText(wind, 'You''ve completed the practice trails for phase 1.\n\nThe experiment will now begin.', 'center', 'center', blk, 45, [], [], 1.4);
-DrawFormattedText (wind, 'To start the practice, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
-Screen('Flip', wind);
+DrawFormattedText(wind, 'You''ve completed the practice trials for part 1! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
+Screen(wind,'Flip');
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
     if keyIsDown
         if keyCode(esc_key_code)
             sca
             error('Experiment aborted by user!');
-        elseif all(keyCode(resp_key_codes_phase1))
+        elseif any(keyCode(trig_key_code))
             break
         end
     end
 end
-   
-   
 
 
 
@@ -999,7 +962,6 @@ if doinstr
 end
 
 % Check-In
-Screen('FillRect', wind, gry);
 DrawFormattedText(wind, 'This is the end of the reminders for part 2! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen(wind,'Flip');
 while 1
