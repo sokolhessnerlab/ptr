@@ -651,7 +651,7 @@ for t = 1:numTotalPracticeTrials
 end % end practice loop for phase 1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% END Practice: PHASE 1
+%%% END PRACTICE: PHASE 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Screen('FillRect', wind, gry);
@@ -975,6 +975,79 @@ while 1
         end
     end
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% PRACTICE: PART 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+practice_partner_order_phase2 = [1 3 2 4 3]; %don't know if this needs to be changed
+partner_responses_phase2 = {'Partner''s decision: $1'
+    'Partner''s decision: $2'
+    'Partner''s decision: $2'
+    'Partner''s decision: $3'
+    'Partner''s decision: $4'};
+
+
+
+DrawFormattedText(wind, 'Practice','center',screenheight*.1);
+DrawFormattedText(wind, 'Before starting the second phase of this experiment, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
+Screen('Flip',wind,[],1);
+
+WaitSecs(1);
+
+DrawFormattedText (wind, 'To start the practice, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
+Screen('Flip', wind);
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif all(keyCode(resp_key_codes_phase1))
+            break
+        end
+    end
+end
+
+Screen('FillRect', wind, wht);
+DrawFormattedText(wind, 'Beginning the practice trials in 5 seconds...', 'center','center');
+pre_study_wait_time = GetSecs;
+Screen('Flip', wind);
+while (GetSecs - pre_study_wait_time) < 5
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        end
+    end
+end
+
+for t = 1:numTotalPracticeTrials
+
+    % Political affiliation & image prep
+    affiliation_txt = practice_partner_affiliations{practice_partner_order_phase2(t)};
+    practice_stim_img = Screen('MakeTexture', wind, practice_images(:,:,:,practice_partner_order_phase2(t)));
+    
+    %%% Part 1: PARTNER DISPLAY
+    
+    % Display the partner & their affiliation
+    Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
+    DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    Screen('Flip', wind, [], 1); % flip w/o clearing buffer
+    
+    time_trial_start = GetSecs;
+    
+    while (GetSecs - time_trial_start) < showpartner_phase1_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1);
+        if keyIsDown
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user!');
+            end
+        end
+    end
+    
+    DrawFormattedText(wind,practice_response_prompt_text, 'center', screenheight * 0.85);
+    Screen('Flip', wind);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1014,7 +1087,7 @@ end
 phase2_response_prompt_text = 'SHARE         or         KEEP';
 
 
-%%% PHASE 1 TRIAL LOOP %%%
+%%% PHASE 2 PRACTICE TRIAL LOOP %%%
 
 for t = 1:nT_phase2 % Phase 1 Trial Loop
     % In here, use interactions_matrix_phase2, with columns partner &
