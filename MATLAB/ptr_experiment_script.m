@@ -566,7 +566,7 @@ for t = 1:numTotalPracticeTrials
     practice_time_response_window_start = GetSecs;
     made_practice_offer = 0; 
    
-    % Code to collect response
+    % Practice Code to collect response
     while GetSecs - practice_time_response_window_start < max_response_window_duration
         [keyIsDown,~,keyCode] = KbCheck(-1); %record keycode
         %if keyIsDown
@@ -978,14 +978,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PRACTICE: PART 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+practice_phase2_response_prompt_text = 'SHARE         or         KEEP';
 practice_partner_order_phase2 = [1 3 2 4 3]; %don't know if this needs to be changed
 partner_responses_phase2 = {'Partner''s decision: $1'
     'Partner''s decision: $2'
     'Partner''s decision: $2'
     'Partner''s decision: $3'
     'Partner''s decision: $4'};
-
-
 
 DrawFormattedText(wind, 'Practice','center',screenheight*.1);
 DrawFormattedText(wind, 'Before starting the second phase of this experiment, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
@@ -1046,8 +1045,90 @@ for t = 1:numTotalPracticeTrials
         end
     end
     
-    DrawFormattedText(wind,practice_response_prompt_text, 'center', screenheight * 0.85);
+    DrawFormattedText(wind,practice_phase2_response_prompt_text, 'center', screenheight * 0.85);
     Screen('Flip', wind);
+    
+    %%% Part 2: RESPONSE WINDOW
+    
+    DrawFormattedText(wind,practice_phase2_response_prompt_text, 'center', screenheight * 0.9);
+    Screen('Flip', wind);
+    
+    practice_time_response_window_start = GetSecs;
+    
+    % Code to collect response
+    while GetSecs - practice_time_response_window_start < max_response_window_duration
+        [keyIsDown,~,keyCode] = KbCheck(-1); %record keycode
+        %if keyIsDown
+        if (keyIsDown && size(find(keyCode),2) ==1)
+            if keyCode(esc_key_code)
+                sca
+                error('Experiment aborted by user'); % allow aborting the study here
+            elseif any(keyCode(resp_key_codes_phase2)) % IF the pressed key matches a response key...
+                 
+                % Record choice
+                if strcmp(KbName(keyCode),'f')
+                    tmp_response= 1;
+                elseif strcmp(KbName(keyCode),'j')
+                    tmp_response = 0; 
+                end
+            end
+        end
+    end
+    
+    %Practice Phase 2: Outcome
+    
+    %Practice Phase 2: ITI, this needs edits 
+     if isnan(subjDataPhase2.data.participant_sharekeep_RT(t)) % IF THEY DO NOT RESPOND IN TIME
+        % 1. show the red text
+        DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', [255 0 0]);
+        % I DON"T THINK THIS NEEDS TO BE HERE BUT SOMETHING TO REPLACE IT
+        % FOR PRACTICE? 
+
+        Screen('Flip', wind);
+        time_non_response_start = GetSecs;
+        
+        while (GetSecs - time_non_response_start) < 1
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+           
+        % 2. show the normal '+' for the rest of the time
+        DrawFormattedText(wind,'+', 'center', 'center', [0 0 0]);
+        Screen('Flip', wind);
+
+        while (GetSecs - time_non_response_start) < iti_duration
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+
+    else % BUT IF THEY DID RESPOND IN TIME, DO A NORMAL ITI
+        DrawFormattedText(wind,'+', 'center', 'center');
+        Screen('Flip', wind);
+        time_iti_start = GetSecs;
+        while (GetSecs - time_iti_start) < iti_duration
+            [keyIsDown,~,keyCode] = KbCheck(-1);
+            if keyIsDown
+                if keyCode(esc_key_code)
+                    sca
+                    error('Experiment aborted by user!');
+                end
+            end
+        end
+     end
+end
+
+     %end of practice phase 2 
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
