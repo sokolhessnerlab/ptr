@@ -34,6 +34,11 @@ if nargin < 1
     subjID = '000'; % assume default subjID 000
 end
 
+if isnumeric(subjID)
+    subjID = sprintf('%03i',subjID);
+    warning('Enter subject ID as text, not a number!')
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PREPARATION & GLOBAL VARS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
