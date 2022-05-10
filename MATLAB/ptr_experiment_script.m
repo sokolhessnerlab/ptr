@@ -978,16 +978,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PRACTICE: PART 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-practice_phase2_response_prompt_text = 'SHARE         or         KEEP';
-practice_partner_order_phase2 = [1 3 2 4 3]; %don't know if this needs to be changed
-partner_responses_phase2 = {'Partner''s decision: $1'
-    'Partner''s decision: $2'
-    'Partner''s decision: $2'
-    'Partner''s decision: $3'
-    'Partner''s decision: $4'};
-
 DrawFormattedText(wind, 'Practice','center',screenheight*.1);
-DrawFormattedText(wind, 'Before starting the second phase of this experiment, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'Before starting the phase 2, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip',wind,[],1);
 
 WaitSecs(1);
@@ -1020,6 +1012,15 @@ while (GetSecs - pre_study_wait_time) < 5
     end
 end
 
+practice_phase2_response_prompt_text = 'SHARE         or         KEEP';
+practice_partner_order_phase2 = [1 3 2 4 3]; %don't know if this needs to be changed
+partner_responses_phase2 = {'Partner''s decision: $1'
+    'Partner''s decision: $2'
+    'Partner''s decision: $2'
+    'Partner''s decision: $3'
+    'Partner''s decision: $4'};
+
+
 for t = 1:numTotalPracticeTrials
 
     % Political affiliation & image prep
@@ -1035,7 +1036,7 @@ for t = 1:numTotalPracticeTrials
     
     time_trial_start = GetSecs;
     
-    while (GetSecs - time_trial_start) < showpartner_phase1_duration
+    while (GetSecs - time_trial_start) < showpartner_phase2_duration
         [keyIsDown,~,keyCode] = KbCheck(-1);
         if keyIsDown
             if keyCode(esc_key_code)
