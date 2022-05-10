@@ -182,7 +182,7 @@ Screen(wind,'Flip',[],1);
 disp('Partner setup complete. Loading images.')
 
 % relative path to images
-relative_image_path = '../stimuli/';
+relative_image_path = ['..' filesep 'stimuli' filesep];
 fnames = dir([relative_image_path '*.jpg']);
 fnames_for_loading = fnames;
 outputpath = ['.' filesep 'output' filesep];
@@ -474,12 +474,12 @@ end
 %Practice Image Path 
 numTotalPracticeTrials = 5;
 numTotalPracticeStim = 4;
-practice_image_fnames = dir([relative_image_path 'practice_stim/*.jpg']);
+practice_image_fnames = dir([relative_image_path 'practice_stim' filesep '*.jpg']);
 
 practice_images = nan(original_image_height,original_image_width,3,numTotalPracticeStim); %pixels, pixels, RGB, practice stim
 
-for img_number = 1:numTotalPracticeTrials
-    practice_images(:,:,:,img_number) = imread([relative_image_path practice_image_fnames(img_number).name]);
+for img_number = 1:numTotalPracticeStim
+    practice_images(:,:,:,img_number) = imread([relative_image_path 'practice_stim' filesep practice_image_fnames(img_number).name]);
 end
 
 % Creat practice trialText string
