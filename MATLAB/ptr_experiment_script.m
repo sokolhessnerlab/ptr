@@ -361,7 +361,7 @@ study_parameters.nT_phase2 = nT_phase2;
 study_parameters.interaction_matrix_phase1 = interaction_matrix_phase1;
 study_parameters.interaction_matrix_phase2 = interaction_matrix_phase2;
 
-save(sprintf('study_parameters_PTR%s_%.4f.mat',subjID,now),'study_parameters')
+save(sprintf('%sstudy_parameters_PTR%s_%.4f.mat',outputpath,subjID,now),'study_parameters')
 Screen('Flip',wind);
 
 output_filenamepath = sprintf('%sstudy_data_PTR%s_%.4f.mat',outputpath,subjID,now);
