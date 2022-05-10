@@ -979,12 +979,12 @@ end
 %%% PRACTICE: PART 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DrawFormattedText(wind, 'Practice','center',screenheight*.1);
-DrawFormattedText(wind, 'Before starting the phase 2, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
+DrawFormattedText(wind, 'Before starting part 2, you will complete five practice trials.', 'center', 'center', blk, 45, [], [], 1.4);
 Screen('Flip',wind,[],1);
 
 WaitSecs(1);
 
-DrawFormattedText (wind, 'To start the practice, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -992,7 +992,7 @@ while 1
         if keyCode(esc_key_code)
             sca
             error('Experiment aborted by user!');
-        elseif all(keyCode(resp_key_codes_phase1))
+        elseif sum(keyCode(resp_key_codes_phase2))==2 % Only 2 keys being pressed!
             break
         end
     end
@@ -1014,13 +1014,13 @@ end
 
 practice_phase2_response_prompt_text = 'SHARE         or         KEEP';
 practice_partner_order_phase2 = [1 3 2 4 3]; %don't know if this needs to be changed
-partner_responses_phase2 = {'Partner''s decision: $1'
-    'Partner''s decision: $2'
-    'Partner''s decision: $2'
-    'Partner''s decision: $3'
-    'Partner''s decision: $4'};
-
-
+partner_responses_phase2 = {'Offer: $2. Received: $6.'
+    'Offer: $1. Received: $3.' 
+    'Offer: $4. Received: $12.'
+    'Offer: $3. Received: $9.' 
+    'Offer: $2. Received: $6.'};
+    
+    
 for t = 1:numTotalPracticeTrials
 
     % Political affiliation & image prep
@@ -1032,6 +1032,7 @@ for t = 1:numTotalPracticeTrials
     % Display the partner & their affiliation
     Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+    DrawFormattedText(wind, partner_responses_phase2{t}, 'center', screenheight*0.8);
     Screen('Flip', wind, [], 1); % flip w/o clearing buffer
     
     time_trial_start = GetSecs;
@@ -1046,15 +1047,15 @@ for t = 1:numTotalPracticeTrials
         end
     end
     
-    DrawFormattedText(wind,practice_phase2_response_prompt_text, 'center', screenheight * 0.85);
-    Screen('Flip', wind);
-    
     %%% Part 2: RESPONSE WINDOW
     
     DrawFormattedText(wind,practice_phase2_response_prompt_text, 'center', screenheight * 0.9);
     Screen('Flip', wind);
     
     practice_time_response_window_start = GetSecs;
+    
+    tmp_response = 0;
+    
     
     % Code to collect response
     while GetSecs - practice_time_response_window_start < max_response_window_duration
@@ -1067,23 +1068,16 @@ for t = 1:numTotalPracticeTrials
             elseif any(keyCode(resp_key_codes_phase2)) % IF the pressed key matches a response key...
                  
                 % Record choice
-                if strcmp(KbName(keyCode),'f')
-                    tmp_response= 1;
-                elseif strcmp(KbName(keyCode),'j')
-                    tmp_response = 0; 
-                end
+                tmp_response = 1;
+                break
             end
         end
     end
     
-    %Practice Phase 2: Outcome
-    
     %Practice Phase 2: ITI, this needs edits 
-     if isnan(subjDataPhase2.data.participant_sharekeep_RT(t)) % IF THEY DO NOT RESPOND IN TIME
+     if tmp_response == 0 % IF THEY DO NOT RESPOND IN TIME
         % 1. show the red text
         DrawFormattedText(wind, 'YOU DID NOT RESPOND IN TIME.', 'center', 'center', [255 0 0]);
-        % I DON"T THINK THIS NEEDS TO BE HERE BUT SOMETHING TO REPLACE IT
-        % FOR PRACTICE? 
 
         Screen('Flip', wind);
         time_non_response_start = GetSecs;
@@ -1128,8 +1122,24 @@ for t = 1:numTotalPracticeTrials
      end
 end
 
-     %end of practice phase 2 
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% END PRACTICE: PART 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Screen('FillRect', wind, gry);
+DrawFormattedText(wind, 'You''ve completed the practice trials for part 2! Please tell your experimenter whether you have any questions.', 'center', 'center', blk, 45, [], [], 1.4);
+Screen(wind,'Flip');
+while 1
+    [keyIsDown,~,keyCode] = KbCheck(-1);
+    if keyIsDown
+        if keyCode(esc_key_code)
+            sca
+            error('Experiment aborted by user!');
+        elseif any(keyCode(trig_key_code))
+            break
+        end
+    end
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1221,7 +1231,7 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
         affiliation_txt = 'Republican';
     end
 
-    offer_text = sprintf('Offer: $%i. Received: $%i',interaction_matrix_phase2(t,2), interaction_matrix_phase2(t,2)*3);
+    offer_text = sprintf('Offer: $%i. Received: $%i.',interaction_matrix_phase2(t,2), interaction_matrix_phase2(t,2)*3);
     
     %%% Part 1: PARTNER DISPLAY
     
