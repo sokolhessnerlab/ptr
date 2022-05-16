@@ -511,8 +511,7 @@ DrawFormattedText(wind, 'Before starting the experiment, you will complete five 
 Screen('Flip',wind,[],1);
 
 WaitSecs(1);
-
-DrawFormattedText (wind, 'To start the practice, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -520,7 +519,7 @@ while 1
         if keyCode(esc_key_code)
             sca
             error('Experiment aborted by user!');
-        elseif all(keyCode(resp_key_codes_phase1))
+        elseif sum(keyCode(resp_key_codes_phase2))==2 % Only 2 keys being pressed!
             break
         end
     end
@@ -679,9 +678,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% START PART 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Allow participant to start the task by pressing all 4 response keys.
 DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold all four response keys (f, g, h, and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -689,7 +687,7 @@ while 1
         if keyCode(esc_key_code)
             sca
             error('Experiment aborted by user!');
-        elseif all(keyCode(resp_key_codes_phase1))
+        elseif sum(keyCode(resp_key_codes_phase2))==2 % Only 2 keys being pressed!
             break
         end
     end
@@ -724,7 +722,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     if t == (nT_phase1/2 + 1) % if this trial is the first in the 2nd half
         breaktext = ['You are halfway through this part of today''s study.\n\n'...
             'You can now take a brief break. The task will continue automatically '...
-            'in 30 seconds or you can press all four response keys simultaneously '...
+            'in 30 seconds or you can press f and j response keys simultaneously '...
             'to continue whenever you are ready.'];
         
         DrawFormattedText(wind, breaktext, 'center', 'center',[],55);
@@ -735,10 +733,10 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
         while (GetSecs - breakttime_start) < 30
             [keyIsDown,~,keyCode] = KbCheck(-1);
             if keyIsDown
-                if all(keyCode(resp_key_codes_phase1))
+                if sum(keyCode(resp_key_codes_phase2))==2 
                     break
                 elseif keyCode(esc_key_code)
-                    sca
+                    sca %only 'f' and 'j' being pressed
                     error('Experiment aborted by user!');
                 end
             end
@@ -1194,7 +1192,7 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
     if t == (nT_phase2/2 + 1) % if this trial is the first in the 2nd half
         breaktext = ['You are halfway through this part of today''s study.\n\n'...
             'You can now take a brief break. The task will continue automatically '...
-            'in 30 seconds or you can press both response keys simultaneously '...
+            'in 30 seconds or you can press f and j response keys simultaneously '...
             'to continue whenever you are ready.'];
         
         DrawFormattedText(wind, breaktext, 'center', 'center',[],55);
