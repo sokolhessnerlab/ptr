@@ -824,8 +824,8 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
                 end
                 subjDataPhase1.data.participant_offer_choice(t) = tmp_offer;
                 
-                WaitSecs(0.1); % how long to display the response confirmation
                 Screen('Flip',wind);
+                WaitSecs(0.25); % how long to display the response confirmation
 
                 % Record their total on this trial (amount kept + returned
                 % amount if applicable).
