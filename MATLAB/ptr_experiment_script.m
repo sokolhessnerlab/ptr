@@ -788,7 +788,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     %%% Part 2: RESPONSE WINDOW
     
     DrawFormattedText(wind,phase1_response_prompt_text, 'center', screenheight * 0.85);
-    Screen('Flip', wind);
+    Screen('Flip', wind, [], 1); % don't clear the buffer
     
     time_response_window_start = GetSecs;
     
@@ -808,14 +808,21 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
                 % Record choice
                 if strcmp(KbName(keyCode),'f')
                     tmp_offer = 1;
+                    DrawFormattedText2('<color=FF0000>$1<color=000000>     $2     $3     $4','win',wind,'sx','center','sy',screenheight * 0.85);
                 elseif strcmp(KbName(keyCode),'g')
                     tmp_offer = 2;
+                    DrawFormattedText2('$1     <color=FF0000>$2<color=000000>     $3     $4','win',wind,'sx','center','sy',screenheight * 0.85);
                 elseif strcmp(KbName(keyCode),'h')
                     tmp_offer = 3;
+                    DrawFormattedText2('$1     $2     <color=FF0000>$3<color=000000>     $4','win',wind,'sx','center','sy',screenheight * 0.85);
                 elseif strcmp(KbName(keyCode),'j')
                     tmp_offer = 4; 
+                    DrawFormattedText2('$1     $2     $3     <color=FF0000>$4<color=000000>','win',wind,'sx','center','sy',screenheight * 0.85);
                 end
                 subjDataPhase1.data.participant_offer_choice(t) = tmp_offer;
+                
+                WaitSecs(0.1); % how long to display the response confirmation
+                Screen('Flip',wind);
 
                 % Record their total on this trial (amount kept + returned
                 % amount if applicable).
@@ -830,6 +837,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     
     %%% Part 3: ISI
     
+    Screen('Flip',wind); % an extra flip in case they didn't respond.
     Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
     Screen('Flip', wind, [], 1); % flip w/o clearing buffer
