@@ -511,7 +511,7 @@ DrawFormattedText(wind, 'Before starting the experiment, you will complete five 
 Screen('Flip',wind,[],1);
 
 WaitSecs(1);
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the practice, simultaneously press and hold the f and j response keys.', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -679,7 +679,7 @@ end
 %%% START PART 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold the response keys f and j.', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -935,7 +935,8 @@ end
 %Define the task instructions (being displayed to participant)
 
 instructStr = cell(0); % necessary to remove part 1 instructions
-instructStr{1} = ['As a reminder, in the next task, you will be interacting with the same 8 partners.'];
+instructStr{1} = ['As a reminder, in the next task, you will be interacting with the SAME 8 partners '...
+    'that you just learned about and interacted with in part 1.'];
 instructStr{2} = ['This time, remember that the roles of the interaction are reversed. Your partners '...
     'can offer you $1, $2, $3, or $4 out of a total of $4. The amount they choose to send '...
     'triples in value (so if they send $2, you receive $6.\n\nYOUR choice is now to either '...
@@ -997,7 +998,7 @@ Screen('Flip',wind,[],1);
 
 WaitSecs(1);
 
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the practice, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
