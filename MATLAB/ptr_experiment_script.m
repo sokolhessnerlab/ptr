@@ -511,7 +511,7 @@ DrawFormattedText(wind, 'Before starting the experiment, you will complete five 
 Screen('Flip',wind,[],1);
 
 WaitSecs(1);
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the practice, simultaneously press and hold the f and j response keys.', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -679,7 +679,7 @@ end
 %%% START PART 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DrawFormattedText(wind, 'The experiment is ready to begin!','center',screenheight*.1);
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold the response keys f and j.', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
@@ -997,7 +997,7 @@ Screen('Flip',wind,[],1);
 
 WaitSecs(1);
 
-DrawFormattedText(wind, 'To start the experiment, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
+DrawFormattedText(wind, 'To start the practice, simultaneously press and hold both response keys (f and j).', 'center', rect(4)*.9, blk, 50);
 Screen('Flip', wind);
 while 1
     [keyIsDown,~,keyCode] = KbCheck(-1);
