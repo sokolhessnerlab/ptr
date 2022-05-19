@@ -58,7 +58,7 @@ screenwidth = rect(3);
 blk = BlackIndex(wind);
 wht = WhiteIndex(wind);
 gry = GrayIndex(wind, 0.8);
-Screen('TextFont', wind, 'default');
+Screen('TextFont', wind, 'Courier');
 
 % Show Loading Screen
 DrawFormattedText(wind, 'Setting up...', 'center', 'center', blk);
@@ -788,7 +788,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     %%% Part 2: RESPONSE WINDOW
     
     DrawFormattedText(wind,phase1_response_prompt_text, 'center', screenheight * 0.85);
-    Screen('Flip', wind, [], 1); % don't clear the buffer
+    Screen('Flip', wind);
     
     time_response_window_start = GetSecs;
     
@@ -804,20 +804,23 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
 
                 % Record RT
                 subjDataPhase1.data.participant_offer_RT(t) = resp_time - time_response_window_start; % record RT
-
+                
+                % re-draw pic & affiliation for response confirmation display
+                Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+                DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
                 % Record choice
                 if strcmp(KbName(keyCode),'f')
                     tmp_offer = 1;
-                    DrawFormattedText2('<color=FF0000>$1<color=000000>     $2     $3     $4','win',wind,'sx','center','sy',screenheight * 0.85);
+                    DrawFormattedText(wind,'$1                     ', 'center', screenheight * 0.85);
                 elseif strcmp(KbName(keyCode),'g')
                     tmp_offer = 2;
-                    DrawFormattedText2('$1     <color=FF0000>$2<color=000000>     $3     $4','win',wind,'sx','center','sy',screenheight * 0.85);
+                    DrawFormattedText(wind,'       $2              ', 'center', screenheight * 0.85);
                 elseif strcmp(KbName(keyCode),'h')
                     tmp_offer = 3;
-                    DrawFormattedText2('$1     $2     <color=FF0000>$3<color=000000>     $4','win',wind,'sx','center','sy',screenheight * 0.85);
+                    DrawFormattedText(wind,'              $3       ', 'center', screenheight * 0.85);
                 elseif strcmp(KbName(keyCode),'j')
                     tmp_offer = 4; 
-                    DrawFormattedText2('$1     $2     $3     <color=FF0000>$4<color=000000>','win',wind,'sx','center','sy',screenheight * 0.85);
+                    DrawFormattedText(wind,'                     $4', 'center', screenheight * 0.85);
                 end
                 subjDataPhase1.data.participant_offer_choice(t) = tmp_offer;
                 
@@ -837,7 +840,6 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
     
     %%% Part 3: ISI
     
-    Screen('Flip',wind); % an extra flip in case they didn't respond.
     Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
     DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
     Screen('Flip', wind, [], 1); % flip w/o clearing buffer
