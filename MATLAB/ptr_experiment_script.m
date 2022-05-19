@@ -103,6 +103,7 @@ max_response_window_duration = 2;
 isi_duration = 1;
 outcome_duration = 1.5;
 iti_duration = 2;
+response_confirmation_time = 0.25;
 
 disp('Beginning partner setup')
 DrawFormattedText(wind,'..', screenwidth*.2, screenheight*.8);
@@ -581,6 +582,23 @@ for t = 1:numTotalPracticeTrials
             elseif any(keyCode(resp_key_codes_phase1)) % IF the pressed key matches a response key...
                 
                 made_practice_offer = 1;
+                
+                % re-draw pic & affiliation for response confirmation display
+                Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
+                DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+                % Record choice
+                if strcmp(KbName(keyCode),'f')
+                    DrawFormattedText(wind,'$1                     ', 'center', screenheight * 0.85);
+                elseif strcmp(KbName(keyCode),'g')
+                    DrawFormattedText(wind,'       $2              ', 'center', screenheight * 0.85);
+                elseif strcmp(KbName(keyCode),'h')
+                    DrawFormattedText(wind,'              $3       ', 'center', screenheight * 0.85);
+                elseif strcmp(KbName(keyCode),'j')
+                    DrawFormattedText(wind,'                     $4', 'center', screenheight * 0.85);
+                end
+                
+                Screen('Flip',wind);
+                WaitSecs(response_confirmation_time); % how long to display the response confirmation
 
                 % This is where response encoding would go if we were
                 % saving responses. 
@@ -825,7 +843,7 @@ for t = 1:nT_phase1 % Phase 1 Trial Loop
                 subjDataPhase1.data.participant_offer_choice(t) = tmp_offer;
                 
                 Screen('Flip',wind);
-                WaitSecs(0.25); % how long to display the response confirmation
+                WaitSecs(response_confirmation_time); % how long to display the response confirmation
 
                 % Record their total on this trial (amount kept + returned
                 % amount if applicable).
@@ -1083,6 +1101,21 @@ for t = 1:numTotalPracticeTrials
                  
                 % Record choice
                 tmp_response = 1;
+                
+                % Re-draw stimuli for response confirmation
+                Screen('DrawTexture', wind, practice_stim_img,[],img_location_rect);
+                DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+                DrawFormattedText(wind, partner_responses_phase2{t}, 'center', screenheight*0.8);
+                % Record choice
+                if strcmp(KbName(keyCode),'f')
+                    DrawFormattedText(wind, 'SHARE                        ', 'center', screenheight * 0.9);
+                elseif strcmp(KbName(keyCode),'j')
+                    DrawFormattedText(wind, '                         KEEP', 'center', screenheight * 0.9);
+                end
+                
+                Screen('Flip',wind);
+                WaitSecs(response_confirmation_time);
+
                 break
             end
         end
@@ -1136,7 +1169,7 @@ for t = 1:numTotalPracticeTrials
      end
 end
 
-     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% END PRACTICE: PART 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1193,9 +1226,9 @@ end
 phase2_response_prompt_text = 'SHARE         or         KEEP';
 
 
-%%% PHASE 2 PRACTICE TRIAL LOOP %%%
+%%% PHASE 2 MAIN TRIAL LOOP %%%
 
-for t = 1:nT_phase2 % Phase 1 Trial Loop
+for t = 1:nT_phase2 % Phase 2 Trial Loop
     % In here, use interactions_matrix_phase2, with columns partner &
     % offer ($1, 2, 3, or 4)
     
@@ -1288,15 +1321,24 @@ for t = 1:nT_phase2 % Phase 1 Trial Loop
 
                 % Record RT
                 subjDataPhase2.data.participant_sharekeep_RT(t) = resp_time - time_response_window_start; % record RT
-
+                
+                % Re-draw stimuli for response confirmation
+                Screen('DrawTexture', wind, trial_stim_img,[],img_location_rect);
+                DrawFormattedText(wind, affiliation_txt, 'center', screenheight*0.7);
+                DrawFormattedText(wind, offer_text, 'center', screenheight*.8);
                 % Record choice
                 if strcmp(KbName(keyCode),'f')
                     tmp_response= 1;
+                    DrawFormattedText(wind, 'SHARE                        ', 'center', screenheight * 0.9);
                 elseif strcmp(KbName(keyCode),'j')
                     tmp_response = 0; 
+                    DrawFormattedText(wind, '                         KEEP', 'center', screenheight * 0.9);
                 end
                 subjDataPhase2.data.participant_sharekeep_choice(t) = tmp_response;
-
+                
+                Screen('Flip',wind);
+                WaitSecs(response_confirmation_time);
+                
                 % Record their total on this trial (amount kept + returned
                 % amount if applicable).
                 subjDataPhase2.data.phase2trial_total_received(t) = ...
