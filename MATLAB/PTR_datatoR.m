@@ -1,5 +1,5 @@
-%PTR data to R 
-%% Loading Data
+% PTR data to R 
+% Loading Data
 base_path = [filesep 'Volumes' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'data' filesep];
 data_path = ['PTR_data' filesep];
 parameter_path = ['PTR_dataparameters' filesep];
@@ -28,7 +28,7 @@ part1_data = nan(0,11);
     Partner Race (1 = Black, 0 = White)
 %}
 
-part2_data = nan();
+part2_data = nan(0,11);
 %{
     Subject ID
     Trial Number
@@ -43,7 +43,7 @@ part2_data = nan();
     Partner Race (1 = Black, 0 = White)
 %}
 
-for s = 1:length(datafiles)
+for s = 1:length(fndata) % what is datafiles? not a variable 
     % Load the behavioral data for this participant
     cd([base_path data_path]);
     temp_subjectdata = load(fndata(s).name);
@@ -75,12 +75,21 @@ for s = 1:length(datafiles)
     end
     
     % Part 2
+    % shuffled image order = different, several portions need to be held
+    % constant 
+    % duplicate parameters: 005, 006, 007, and 008 
     tmpmtx_part2 = nan(80,11);
-    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17));% subject ID, FIX THE PEOPLE WHO HAVE DUPLICATES - make nan's 
-    tmptx_part2(:,2) = 1:80; %trial number 
-    tmptx_part2(:,3:5) = table2array(temp_subjectdata.subjDataPhase2.data); %share/keep, RT, total received 
-    tmptx_part2(:,6:7) = %see if this is different than the top one 
-    
+    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17));% subject ID
+    tmpmtx_part2(:,2) = 1:80; %trial number 
+    tmpmtx_part2(:,3:5) = table2array(temp_subjectdata.subjDataPhase2.data); %share/keep, RT, total received 
+    tmpmtx_part2(:,6:7) = temp_subjectparam.study_parameters.interaction_matrix_phase2; %partner ID, partner offer
+    for i = 1:80
+    %     Partner Affiliation (R = 0, D = 1)
+    %     Partner Reciprocation rate
+    %     Partner Gender (1 = F, 0 = M)
+    %     Partner Race (1 = Black, 0 = White)
+        tmpmtx_part2(i,8:11) = temp_subjectparam.study_parameters.partner_matrix(tmpmtx_part2(i,6),:);
+    end 
     
     
     % append this person's part of the big matrix
@@ -90,13 +99,9 @@ for s = 1:length(datafiles)
 end
 
 % Save out the overall data file as two CSVs
-cd([base_path data_path]);
-
-
-
-%ref_files is a cell array of structs with each struct having
-%subjDataPhase1 & subjDataPhase2 for each of the 19 people 
-
+cd(base_path);
+csvwrite(sprintf('PTRPart1_data_%.4f.txt',now),part1_data);
+csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 
 
 
