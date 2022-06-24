@@ -76,7 +76,12 @@ for s = 1:length(datafiles)
     
     % Part 2
     tmpmtx_part2 = nan(80,11);
-    % REST OF CODE HERE
+    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17));% subject ID, FIX THE PEOPLE WHO HAVE DUPLICATES - make nan's 
+    tmptx_part2(:,2) = 1:80; %trial number 
+    tmptx_part2(:,3:5) = table2array(temp_subjectdata.subjDataPhase2.data); %share/keep, RT, total received 
+    tmptx_part2(:,6:7) = %see if this is different than the top one 
+    
+    
     
     % append this person's part of the big matrix
     part1_data = [part1_data; tmpmtx_part1];
@@ -94,22 +99,9 @@ cd([base_path data_path]);
 
 
 
-alldata = ref_files;
 
-%% Part 1: PTR
-d = nan(0,5); %subjID, trial number, offer, RT, total recieved per trial
-%just make it the part 1 data
-%set up emprty matrix, load subject 
-for s = 1:length(alldata)
-    part1subjectdata = alldata{s}.subjDataPhase1.data;
-    nT = size(part1subjectdata);
-    RT = part1subjectdata(:,2);
-    offer = part1subjectdata(:,1);
-    totalrecieved = part1subjectdata(:,3);
-    subjID = %not sure how to do this one
-    tmpmatrix = %getting confused 
-    d = [d; tmptx];
-end
+
+
 
 
 
