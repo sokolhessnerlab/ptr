@@ -103,6 +103,23 @@ cd(base_path);
 csvwrite(sprintf('PTRPart1_data_%.4f.txt',now),part1_data);
 csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 
+%Loading Qualtrics data
+base_path = [filesep 'Volumes' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'data' filesep];
+qualtrics_data_path = ['clean' filesep];
+post_Q_path = ['POST_Q' filesep];
+RWA_SDO_path = ['RWA_SDO' filesep];
+
+%Listing of data files
+%POST Q
+cd([base_path qualtrics_data_path post_Q_path]);
+post_Q_data = readmatrix('PTR_POSTQ.csv');
+
+%RWA_SDO
+cd([base_path qualtrics_data_path RWA_SDO_path]);
+RWA_SDO_data = readmatrix('PTR_RWA_SDO_Data .csv');
+
+
+
 
 
 
