@@ -98,25 +98,42 @@ for s = 1:length(fndata) % what is datafiles? not a variable
     
 end
 
+
 % Save out the overall data file as two CSVs
 cd(base_path);
 csvwrite(sprintf('PTRPart1_data_%.4f.txt',now),part1_data);
 csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 
-%Loading Qualtrics data
-base_path = [filesep 'Volumes' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'data' filesep];
-qualtrics_data_path = ['clean' filesep];
-post_Q_path = ['POST_Q' filesep];
-RWA_SDO_path = ['RWA_SDO' filesep];
+% Loading Qualtrics data 
+ base_path = [filesep 'Volumes' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'data' filesep];
+ qualtrics_data_path = ['clean' filesep];
+ post_Q_path = ['POST_Q' filesep];
+ RWA_SDO_path = ['RWA_SDO' filesep];
 
-%Listing of data files
-%POST Q
-cd([base_path qualtrics_data_path post_Q_path]);
-post_Q_data = readmatrix('PTR_POSTQ.csv');
+%Listing of data files / Importing the CSV's manually saves the column headers
+ %POST Q
+ cd([base_path qualtrics_data_path post_Q_path]);
+ post_Q_data = uiimport('PTR_POSTQ.csv'); %this is the right code to import it using import wizard but it doesn't format it correctly 
 
-%RWA_SDO
-cd([base_path qualtrics_data_path RWA_SDO_path]);
-RWA_SDO_data = readmatrix('PTR_RWA_SDO_Data .csv');
+ %RWA_SDO
+ cd([base_path qualtrics_data_path RWA_SDO_path]);
+ RWA_SDO_data = uiimport('PTR_RWA_SDO_Data .csv'); %this is the right code to import it using import wizard but it doesn't format it correctly 
+
+% POSTQ Scoring Matrix, RWA/SDO doesn't need partner ID 
+ 
+% Columns unique to questions, every participant gets 8 rows 
+% Rows identified by participant and partner number 
+% That (N x 8) row matrix should have columns including participant ID and partner ID - 
+% that way with some indexing (e.g. matrix$subID == 2 & matrix$partnerID == 5) 
+% we can link post-task info to any given participant & partner.
+% 19x66 matrix for post_Q_data
+% 152 (8x19) is the number of rows per participant, 8 partners per
+% participant 
+
+for s = 1:19 
+    cd([base_path qualtrics_data_path post_Q_path]);
+    tmpmtx_POSTQ = nan(152,67); %152 rows per participant, 67 columns for the questions (add a column for partner ID)  
+    
 
 
 
