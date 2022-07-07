@@ -132,7 +132,10 @@ csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 
 for s = 1:19 
     cd([base_path qualtrics_data_path post_Q_path]);
-    tmpmtx_POSTQ = nan(152,67); %152 rows per participant, 67 columns for the questions (add a column for partner ID)  
+    tmpmtx_POSTQ = nan(152,67); %152 rows per participant, 67 columns for the questions (add a column for partner ID) 
+end
+
+
     
 
 
