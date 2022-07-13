@@ -72,7 +72,7 @@ Change in Decision-making throughout task (Part 1 and Part 2)
 More or Less Inclined to Offer or Share (Part 1 and Part 2)
 - Scale from 1 to 10
 - 1 = less inclined
-= 1 = more inclined 
+- 10 = more inclined 
 
 How Well Did Decision-Making Strategy Work (Part 1 and Part 2)
 - Scale from 1 to 10 
