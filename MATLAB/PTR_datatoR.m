@@ -113,11 +113,11 @@ csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 %Listing of data files / Importing the CSV's manually saves the column headers
  %POST Q
  cd([base_path qualtrics_data_path post_Q_path]);
- post_Q_data = import_postq_file('PTR_POSTQ.csv'); 
+ post_Q_data = import_postq_file('PTR_POSTQ.csv'); %49 questions, 19 participants 
 
  %RWA_SDO
  cd([base_path qualtrics_data_path RWA_SDO_path]);
- RWA_SDO_data = import_RWASDODEMO_file('PTR_RWA_SDO_Data .csv');  
+ RWA_SDO_data = import_RWASDODEMO_file('PTR_RWA_SDO_Data.csv');  
 
 % POSTQ Scoring Matrix, RWA/SDO doesn't need partner ID 
  
@@ -132,10 +132,12 @@ csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 
 for s = 1:19 
     cd([base_path qualtrics_data_path post_Q_path]);
-    tmpmtx_POSTQ = nan(152,67); %152 rows per participant, 67 columns for the questions (add a column for partner ID) 
-    %which participant am i doing? 
+    tmpmtx_POSTQ = nan(152,50); %152 rows per participant, 50 columns for the questions (add a column for partner ID) 
     %which partner am i doing? loop within a loop
-    %for partner what was their file name 
+    for i = 1:8
+        tmp
+    %for partner what was their file nam
+    
     %connect file name to the correct set of ratings 
 end
 
