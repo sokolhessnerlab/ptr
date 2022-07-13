@@ -1,9 +1,9 @@
-### PTR Data Encoding 
+## PTR Data Encoding 
 
 This contains the processing and encoding of PTR survey data. These data are on the SHLAB S drive under the PTR project directory in .csv format. 
 
 ## RWA_SDO_DEMO Scoring
-#1. **RWA and SDO** 
+# 1. **RWA and SDO** 
 
 RWA Scale 
 - Scale from -4 to 4 
@@ -15,7 +15,8 @@ SDO Scale
 - Con trait items reverse coded 
 - Scoring: composite scale mean
 
-#2. **Political Affiliation**
+# 2. **Political Affiliation**
+
 Liberal to Conservative Scale 
 - Scale from 1 to 10
 - 1 = liberal
@@ -32,7 +33,8 @@ Political Party Identification
 - Republican = 0
 - Democratic = 1
 
-#3. **Demographics Scoring**
+# 3. **Demographics Scoring**
+
 Ethnicity
 - Choices: Not Hispanic / Latino or Hispanic / Latino
 - Not Hispanic / Latino = 0
@@ -56,7 +58,7 @@ Gender Identity
 - Female = 1
 - Other = 2 
 
-#4 **Miscellaneous Questions**
+# 4 **Miscellaneous Questions**
 
 Difficulty Rating (Part 1 and Part 2)
 - Scale from 1 to 10
@@ -87,7 +89,7 @@ How Did the Following Influence your Decision Making (Part 1 and Part 2)
 - 5 - A great deal
 
 ## POSTQ Scoring 
-#1. **Part 1 Ratings**
+# 1. **Part 1 Ratings**
 
 Average Dollars Offered to Each Partner 
 - Scale from $1 to $4 
@@ -104,7 +106,7 @@ Good and Bad Rating of Partners
 - 5 = extremely good 
 
 
-#2 **Part 2 Ratings** 
+# 2 **Part 2 Ratings** 
 
 Average Dollars Partner Offers to Participant 
 - Scale from $1 to $4 
