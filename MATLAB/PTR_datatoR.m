@@ -149,52 +149,59 @@ csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 % 152 (8x19) is the number of rows per participant, 8 partners per
 % participant 
 
-%Qualtrics Partners: ordered by column in PostQ Data CSV
-%column headers names have no dots and no dashes 
-    % CFD-WF-234-086-N.jpg = Partner 1, White Female 
-    % CFD-BF-049-032-N.jpg = Partner 2, Black Female
-    % CFD-BM-010-003-N.jpg = Partner 3, Black Male 
-    % CFD-WF-212-050-N.jpg = Partner 4, White Female
-    % CFD-WM-209-038-N.jpg = Partner 5, White Male 
-    % CFD-BM-019-002-N.jpg = Partner 6, Black Male 
-    % CFD-BF-041-001-N.jpg = Partner 7, Black Female 
-    % CFD-WM-024-015-N.jpg = Partner 8, White Male 
-%Order of Names of Photos in Parameters (same every time) 
-% how to access: temp_subjectparam.study_parameters.fnames.name
-    % CFD-WM-024-015-N.jpg = Partner 8
-    % CFD-WF-212-050-N.jpg = Partner 4
-    % CFD-BF-041-001-N.jpg = Partner 7
-    % CFD-WF-234-086-N.jpg = Partner 1
-    % CFD-WM-209-038-N.jpg = Partner 5
-    % CFD-BF-049-032-N.jpg = Partner 2
-    % CFD-BM-019-002-N.jpg = Partner 6
-    % CFD-BM-010-003-N.jpg = Partner 3
+finmtx_POSTQ = nan(0,8); %subjectID, partnerID, questions
+cd([base_path qualtrics_data_path post_Q_path]);
+post_Q_data = import_postq_file('PTR_POSTQ.csv');     
+cd([base_path parameter_path]);
+fnparam = dir('*.mat');
 
 for s = 1:19 
-    cd([base_path qualtrics_data_path post_Q_path]);
-    post_Q_data = import_postq_file('PTR_POSTQ.csv'); 
+    disp(['Starting subject ',num2str(s)])
+    tmp_parameter = load(fnparam(s).name);
+    disp('Parameters loaded')
     
-    tmpmtx_POSTQ = nan(152,50); %152 rows per participant, 50 columns for the questions (add a column for partner ID)
-    %which participant am I doing? 
-    
-    %connect the first 49 columns from postQ data and put it into the
-    %temporary matrix
-        % SubjID: 3 numbers 
-        % 24 responses Phase 1: Phase1_AvgOffer_jpg, Phase1_TimesPShare_jpg,
-        % Phase1_PGoodBad_jpg 
-        % 24 responses Phase 2: Phase2_ AvgPOffer_jpg,
-        % Phase2_TimesPShare_jpg, Phase2_PGoodBad_jpg
+    shuffle_order = tmp_parameter.study_parameters.shuffle_order;
+
+    tmpmtx_postQ = nan(8,8);
+    tmpmtx_postQ(:,1) = s;
+    tmpmtx_postQ(:,2) = 1:8;
+    for partner = 1:8
+        %matching the text strings, ind for different columns, stringcomp
+        fname_from_parameters = tmp_parameter.study_parameters.fnames(shuffle_order(partner)).name;
+        fname_from_parameters = erase(fname_from_parameters,["-","."]); % Partner ID fname from parameters
         
-    %each jpg has a specific number attached to it and abbreviation for
-    %race and gender 
-    % Partner ID comes from parameters, putting file name into a column,
-    % way to connect is through the BF, WM, WF, and BM? 
-    for i = 1:8
-    tmpmtx_POSTQ(i,50) = temp_subjectparam.study_parameters.fnames.name; %isn't right size 
+        for col = 2:9
+            match_test = strcmp(fname_from_parameters,post_Q_data.Properties.VariableNames{col}((end-14):end));
+            if match_test
+                break
+            end
+        end
+        
+        column_indices = col:8:49;
+        tmpmtx_postQ(partner,3:end) =  table2array(post_Q_data(s,column_indices));
     end
-    %connect file name to the correct set of ratings by column header from
-    %POST Q csv 
+    
+    %same thing we did above in appending to final matrix 
+    finmtx_POSTQ = [finmtx_POSTQ; tmpmtx_postQ];
+    
+    
+    % subject by subject
+    % loop that is partner by partner 
+    % partner 1 corresponds to which picture? 
+    % use erase function to remove hifens and dots in the file name 
+    % go to csv, go column by column, pull out string correspoding to each
+    % column name 
+    % post_Q_data.Properties.VariableNames{}
+    % all column headers are the same length 
+    % post_Q_data.Properties.VariableNames{2}((end-14):end) for a given
+    % person you have a file name 
+    % 
+    
 end
+
+% Save out the overall data file as one CSV
+cd(base_path);
+csvwrite(sprintf('PTRPOSTQPartner_data_%.4f.txt',now),finmtx_POSTQ);
 
 
     
