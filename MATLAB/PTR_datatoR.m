@@ -1,16 +1,30 @@
 % PTR data to R 
-% Loading Data
+
+% Loading Data S-drive 
 base_path = [filesep 'Volumes' filesep 'shlab' filesep 'Projects' filesep 'PTR' filesep 'data' filesep];
 data_path = ['PTR_data' filesep];
 parameter_path = ['PTR_dataparameters' filesep];
 
-% Get the listing of data files
+%Loading Data Locally 
+% local_base_path = [filesep 'Documents' filesep 'MATLAB' filesep];
+% local_data_path = ['Local_PTR_data' filesep];
+% local_parameter_path = ['Local_PTR_dataparameters' filesep];
+
+% Get the listing of data files (S-drive)
 cd([base_path data_path]);
 fndata = dir('*.mat');
 
-% Get the listing of study design parameter files
+% Get the listing of study design parameter files (S-drive)
 cd([base_path parameter_path]);
 fnparam = dir('*.mat');
+
+%Local 
+% cd([local_base_path local_data_path]);
+% fndata = dir('*.mat');
+
+%Local 
+% cd([local_base_path local_parameter_path]);
+% fnparam = dir('*.mat');
 
 % Create empty matrices
 part1_data = nan(0,11); 
@@ -47,12 +61,16 @@ for s = 1:length(fndata) % what is datafiles? not a variable
     % Load the behavioral data for this participant
     cd([base_path data_path]);
     temp_subjectdata = load(fndata(s).name);
+    disp('Done with loading fndata')
     
     % how to access: temp_subjectdata.subjDataPhase1.data
     
     % Load the study design parameters for this participant
     cd([base_path parameter_path]);
     temp_subjectparam = load(fnparam(s).name);
+    disp('Done with loading fnparam')%getting stuck here for a long time, this takes like 2 - 3 min to load for each person 
+    %then gets slower each time 
+    
     
     % how to access:
         % temp_subjectparam.study_parameters.interaction_matrix_phase1
@@ -62,10 +80,15 @@ for s = 1:length(fndata) % what is datafiles? not a variable
     
     % Part 1
     tmpmtx_part1 = nan(80,11);
+    disp('Setting up tmptx_part1')
     tmpmtx_part1(:,1) = str2num(fndata(s).name(15:17)); % subject ID
+    disp('SubjectID created')
     tmpmtx_part1(:,2) = 1:80; % trial number
+    disp('Trial Number created')
     tmpmtx_part1(:,3:5) = table2array(temp_subjectdata.subjDataPhase1.data); % offer, RT, total received
-    tmpmtx_part1(:,6:7) = temp_subjectparam.study_parameters.interaction_matrix_phase1; % partner ID, partner response
+    disp('Offer, RT, total received created')
+    tmpmtx_part1(:,6:7) = temp_subjectparam.study_parameters.interaction_matrix_phase1;
+    disp('Partner ID and Partner Response created')% partner ID, partner response
     for i = 1:80
     %     Partner Affiliation (R = 0, D = 1)
     %     Partner Reciprocation rate
@@ -74,15 +97,22 @@ for s = 1:length(fndata) % what is datafiles? not a variable
         tmpmtx_part1(i,8:11) = temp_subjectparam.study_parameters.partner_matrix(tmpmtx_part1(i,6),:);
     end
     
+    disp('Partner A, Partner RR, Partner G, and Partner R created')
+    
     % Part 2
     % shuffled image order = different, several portions need to be held
     % constant 
     % duplicate parameters: 005, 006, 007, and 008 
     tmpmtx_part2 = nan(80,11);
-    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17));% subject ID
+    disp('tmptx_part2 created')
+    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17))% subject ID
+    disp('Subject ID 2 created')
     tmpmtx_part2(:,2) = 1:80; %trial number 
-    tmpmtx_part2(:,3:5) = table2array(temp_subjectdata.subjDataPhase2.data); %share/keep, RT, total received 
-    tmpmtx_part2(:,6:7) = temp_subjectparam.study_parameters.interaction_matrix_phase2; %partner ID, partner offer
+    disp('Trial Number 2 created')
+    tmpmtx_part2(:,3:5) = table2array(temp_subjectdata.subjDataPhase2.data);
+    disp('Share/Keep, RT, and TR 2 created')%share/keep, RT, total received 
+    tmpmtx_part2(:,6:7) = temp_subjectparam.study_parameters.interaction_matrix_phase2;
+    disp('Partner ID, Partner Offer 2 created')%partner ID, partner offer
     for i = 1:80
     %     Partner Affiliation (R = 0, D = 1)
     %     Partner Reciprocation rate
@@ -91,10 +121,13 @@ for s = 1:length(fndata) % what is datafiles? not a variable
         tmpmtx_part2(i,8:11) = temp_subjectparam.study_parameters.partner_matrix(tmpmtx_part2(i,6),:);
     end 
     
+    disp('Partner A, Partner RR, Partner G, and Partner R 2 Created')
     
     % append this person's part of the big matrix
     part1_data = [part1_data; tmpmtx_part1];
+    disp('Part1_data done')
     part2_data = [part2_data; tmpmtx_part2];
+    disp('Part2_data done')
     
 end
 
@@ -132,13 +165,23 @@ csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 
 for s = 1:19 
     cd([base_path qualtrics_data_path post_Q_path]);
-    tmpmtx_POSTQ = nan(152,50); %152 rows per participant, 50 columns for the questions (add a column for partner ID) 
-    %which partner am i doing? loop within a loop
-    for i = 1:8
-        tmp
-    %for partner what was their file nam
+    post_Q_data = import_postq_file('PTR_POSTQ.csv'); 
     
-    %connect file name to the correct set of ratings 
+    tmpmtx_POSTQ = nan(152,50); %152 rows per participant, 50 columns for the questions (add a column for partner ID)
+    %which participant am I doing? 
+    
+    %connect the first 49 columns from postQ data and put it into the
+    %temporary matrix
+        % SubjID
+        % 24 responses Phase 1
+        % 24 responses Phase 2
+   
+        % Partner ID comes from parameters, putting file name into a column 
+    for i = 1:8
+    tmpmtx_POSTQ(i,50) = temp_subjectparam.study_parameters.fnames.name; %isn't right size 
+    end
+    %connect file name to the correct set of ratings by column header from
+    %POST Q csv 
 end
 
 
