@@ -5,11 +5,6 @@ base_path = [filesep 'Volumes' filesep 'shlab' filesep 'Projects' filesep 'PTR' 
 data_path = ['PTR_data' filesep];
 parameter_path = ['PTR_dataparameters' filesep];
 
-%Loading Data Locally 
-% local_base_path = [filesep 'Documents' filesep 'MATLAB' filesep];
-% local_data_path = ['Local_PTR_data' filesep];
-% local_parameter_path = ['Local_PTR_dataparameters' filesep];
-
 % Get the listing of data files (S-drive)
 cd([base_path data_path]);
 fndata = dir('*.mat');
@@ -17,14 +12,6 @@ fndata = dir('*.mat');
 % Get the listing of study design parameter files (S-drive)
 cd([base_path parameter_path]);
 fnparam = dir('*.mat');
-
-%Local 
-% cd([local_base_path local_data_path]);
-% fndata = dir('*.mat');
-
-%Local 
-% cd([local_base_path local_parameter_path]);
-% fnparam = dir('*.mat');
 
 % Create empty matrices
 part1_data = nan(0,11); 
@@ -68,8 +55,7 @@ for s = 1:length(fndata) % what is datafiles? not a variable
     % Load the study design parameters for this participant
     cd([base_path parameter_path]);
     temp_subjectparam = load(fnparam(s).name);
-    disp('Done with loading fnparam')%getting stuck here for a long time, this takes like 2 - 3 min to load for each person 
-    %then gets slower each time 
+    disp('Done with loading fnparam')
     
     
     % how to access:
@@ -105,7 +91,7 @@ for s = 1:length(fndata) % what is datafiles? not a variable
     % duplicate parameters: 005, 006, 007, and 008 
     tmpmtx_part2 = nan(80,11);
     disp('tmptx_part2 created')
-    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17))% subject ID
+    tmpmtx_part2(:,1) = str2num(fndata(s).name(15:17));% subject ID
     disp('Subject ID 2 created')
     tmpmtx_part2(:,2) = 1:80; %trial number 
     disp('Trial Number 2 created')
@@ -159,9 +145,30 @@ csvwrite(sprintf('PTRPart2_data_%.4f.txt',now),part2_data);
 % That (N x 8) row matrix should have columns including participant ID and partner ID - 
 % that way with some indexing (e.g. matrix$subID == 2 & matrix$partnerID == 5) 
 % we can link post-task info to any given participant & partner.
-% 19x66 matrix for post_Q_data
+% 19x49 matrix for post_Q_data
 % 152 (8x19) is the number of rows per participant, 8 partners per
 % participant 
+
+%Qualtrics Partners: ordered by column in PostQ Data CSV
+%column headers names have no dots and no dashes 
+    % CFD-WF-234-086-N.jpg = Partner 1, White Female 
+    % CFD-BF-049-032-N.jpg = Partner 2, Black Female
+    % CFD-BM-010-003-N.jpg = Partner 3, Black Male 
+    % CFD-WF-212-050-N.jpg = Partner 4, White Female
+    % CFD-WM-209-038-N.jpg = Partner 5, White Male 
+    % CFD-BM-019-002-N.jpg = Partner 6, Black Male 
+    % CFD-BF-041-001-N.jpg = Partner 7, Black Female 
+    % CFD-WM-024-015-N.jpg = Partner 8, White Male 
+%Order of Names of Photos in Parameters (same every time) 
+% how to access: temp_subjectparam.study_parameters.fnames.name
+    % CFD-WM-024-015-N.jpg = Partner 8
+    % CFD-WF-212-050-N.jpg = Partner 4
+    % CFD-BF-041-001-N.jpg = Partner 7
+    % CFD-WF-234-086-N.jpg = Partner 1
+    % CFD-WM-209-038-N.jpg = Partner 5
+    % CFD-BF-049-032-N.jpg = Partner 2
+    % CFD-BM-019-002-N.jpg = Partner 6
+    % CFD-BM-010-003-N.jpg = Partner 3
 
 for s = 1:19 
     cd([base_path qualtrics_data_path post_Q_path]);
@@ -172,11 +179,16 @@ for s = 1:19
     
     %connect the first 49 columns from postQ data and put it into the
     %temporary matrix
-        % SubjID
-        % 24 responses Phase 1
-        % 24 responses Phase 2
-   
-        % Partner ID comes from parameters, putting file name into a column 
+        % SubjID: 3 numbers 
+        % 24 responses Phase 1: Phase1_AvgOffer_jpg, Phase1_TimesPShare_jpg,
+        % Phase1_PGoodBad_jpg 
+        % 24 responses Phase 2: Phase2_ AvgPOffer_jpg,
+        % Phase2_TimesPShare_jpg, Phase2_PGoodBad_jpg
+        
+    %each jpg has a specific number attached to it and abbreviation for
+    %race and gender 
+    % Partner ID comes from parameters, putting file name into a column,
+    % way to connect is through the BF, WM, WF, and BM? 
     for i = 1:8
     tmpmtx_POSTQ(i,50) = temp_subjectparam.study_parameters.fnames.name; %isn't right size 
     end
