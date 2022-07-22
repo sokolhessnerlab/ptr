@@ -23,6 +23,8 @@ PTRPostQ_data <- data.frame(PTRPostQ_data);
 
 PTRRWA_SDO_Demo_Data <- read.csv("PTR_RWA_SDO_Data.csv");
 
+# Do we need one big dataframe? 
+
 #Look at the data
 head(PTRPart1_data)
 head(PTRPart2_data)
@@ -37,13 +39,34 @@ subject_age = PTRRWA_SDO_Demo_Data$Age
 subject_gender = PTRRWA_SDO_Demo_Data$Gender0M1F
 subject_demographics = data.frame(subject_IDs, subject_age, subject_gender)
 
-# PTRPart1 Data
+### Regressions ###
+# Variables in PTR Part 1 / 2 that might affect offers and share.keep
+# partner gender / partner race / partner political affiliation / good bad
+# PART 1 
+fitoffer_race = lm(PTRPart1_data$offer ~ 1 + PR, data = PTRPart1_data); # not sure what do after the ~ (0 or 1)? 
+summary(fitoffer_race);
 
-#PTRPart2 Data
+fitoffer_gender = lm(PTRPart1_data$offer ~ 1 + PG, data = PTRPart1_data);
+summary(fitoffer_gender);
 
-#PTRPostQ Data
+fitoffer_PA = lm(PTRPart1_data$offer ~ 1 + PA, data = PTRPart1_data); 
+summary(fitoffer_PA); 
 
+fitoffer_PRec = lm(PTRPart1_data$offer ~ 1 + PRec, data = PTRPart1_data);
+summary(fitoffer_PRec);
 
+#PART 2 
+fitsharekeep_race = lm(PTRPart2_data$share.keep ~ 1 + PR, data = PTRPart2_data);
+summary(fitsharekeep_race);
+
+fitsharekeep_gender = lm(PTRPart2_data$share.keep ~ 1 + PG, data = PTRPart2_data);
+summary(fitsharekeep_gender);
+
+fitsharekeep_PA = lm(PTRPart2_data$share.keep ~ 1 + PA, data = PTRPart2_data);
+summary(fitsharekeep_PA);
+
+fitsharekeep_PRec = lm(PTRPart2_data$share.keep ~ 1 + PRec, data = PTRPart2_data);
+summary(fitoffer_PRec);
 
 
 # `source('R/functions.R')` within a code block in the RMarkdown notebook.
