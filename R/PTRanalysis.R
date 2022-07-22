@@ -2,6 +2,7 @@
 #### SETUP ####
 rm(list=ls()) # CLEAR THE WORKSPACE
 setwd('/Users/mia.cudahy1/Documents/MATLAB/')
+setwd('/Volumes/shlab/Projects/PTR/data/')
 
 #### Load the Data and Add Columns#### locally 
 
