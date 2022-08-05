@@ -24,8 +24,6 @@ PTRPostQ_data <- data.frame(PTRPostQ_data);
 
 PTRRWA_SDO_Demo_Data <- read.csv("PTR_RWA_SDO_Data.csv");
 
-# Do we need one big dataframe? 
-
 #Look at the data
 head(PTRPart1_data)
 head(PTRPart2_data)
@@ -33,12 +31,39 @@ head(PTRPostQ_data)
 head(PTRRWA_SDO_Demo_Data)
 
 #Creating basic variables 
-# PTRPart1 Data
-number_of_subjects = length(unique(PTRPart1_data$subjID))
-subject_IDs = unique(PTRPart1_data$subjID)
-subject_age = PTRRWA_SDO_Demo_Data$Age
-subject_gender = PTRRWA_SDO_Demo_Data$Gender0M1F
-subject_demographics = data.frame(subject_IDs, subject_age, subject_gender)
+# Demographics 
+number_of_subjects = length(unique(PTRPart1_data$subjID));
+subject_IDs = unique(PTRPart1_data$subjID);
+subject_age = PTRRWA_SDO_Demo_Data$Age;
+subject_gender = PTRRWA_SDO_Demo_Data$Gender0M1F;
+subject_ethnicity = PTRRWA_SDO_Demo_Data$Ethnicity0N1Y;
+subject_race = PTRRWA_SDO_Demo_Data$Race0W1B2A3L;
+subject_political_affiliation = PTRRWA_SDO_Demo_Data$PolParty0R1D2N
+subject_demographics = data.frame(subject_IDs, subject_age, subject_gender, subject_ethnicity, 
+                                  subject_race);
+
+#Basic Stats for Part 1 and Part 2 Behavioral Data
+
+#Part 1 Means 
+#Mean offer Rate 
+naomit_offer = na.omit(PTRPart1_data$offer)
+subjects_meanoffer = vector(length = number_of_subjects);
+for(s in 1:number_of_subjects){
+  subjects_meanoffer[s] = mean(naomit_offer[PTRPart1_data$subjID == subject_IDs[s]])
+};
+head(subjects_meanoffer)
+
+#troubleshoot why am I getting NA for subject 19 
+
+# Mean RT 
+#build it into a new dataframe 
+PTRPart1_data$sqrtrt = sqrt(PTRPart1_data$RT); 
+subjects_meanRT = vector(length = number_of_subjects);
+for(s in 1:number_of_subjects){
+  subjects_meanRT[s] = mean(PTRPart1_data$sqrtrt[PTRPart1_data$subjID == subject_IDs[s]])
+};
+
+#NANs in this, troubleshoot 
 
 ### Regressions ###
 # Variables in PTR Part 1 / 2 that might affect offers and share.keep
