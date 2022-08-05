@@ -203,7 +203,24 @@ end
 cd(base_path);
 csvwrite(sprintf('PTRPOSTQPartner_data_%.4f.txt',now),finmtx_POSTQ);
 
+%Paramater Check
+%You need to
+%set the value of s
+%Use the variable s to load the parameters file for that participant s
+%look inside the loaded parameter file.
+%and then do 1, 2, and 3 again for a new value of s, and then another, 
+% and another, etc.
 
+for s = 11
+    cd([base_path parameter_path]);
+    fnparam = dir('*.mat');
+    cd([base_path parameter_path]);
+    temp_subjectparam = load(fnparam(s).name);
+    temp_subjectparam.study_parameters.partner_matrix
+end
+
+    
+    
     
 
 
