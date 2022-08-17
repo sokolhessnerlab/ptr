@@ -9,13 +9,13 @@ RWA Scale
 - Scale from -4 to 4
 - Questions 4,6,8,9,11,13,15,18,20,21 were reverse coded
 - Scoring: sum of the values for each question
-- [Source](linkURLgoeshere)
+- [Source](http://www.panojohnson.com/automatons/rwa-scale.xhtml)
 
 SDO Scale
 - Scale from 1 to 7
 - Con trait items reverse coded
 - Scoring: composite scale mean
-- [Source](linkURLgoeshere)
+- [Source](https://sites.lsa.umich.edu/ho-lab/wp-content/uploads/sites/277/2016/01/SDO7-8-item-Short-Scale.pdf)
 
 2. **Political Affiliation**
 
