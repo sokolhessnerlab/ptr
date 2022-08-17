@@ -45,25 +45,49 @@ subject_demographics = data.frame(subject_IDs, subject_age, subject_gender, subj
 #Basic Stats for Part 1 and Part 2 Behavioral Data
 
 #Part 1 Means 
-#Mean offer Rate 
-naomit_offer = na.omit(PTRPart1_data$offer)
-subjects_meanoffer = vector(length = number_of_subjects);
-for(s in 1:number_of_subjects){
-  subjects_meanoffer[s] = mean(naomit_offer[PTRPart1_data$subjID == subject_IDs[s]])
-};
-head(subjects_meanoffer)
+#Offer
+mean_global_offer = mean(PTRPart1_data$offer, na.rm = T);
+meansubject_offer = array(data = NA, dim=number_of_subjects); # create our placeholder
 
-#troubleshoot why am I getting NA for subject 19 
+for (s in 1:number_of_subjects) {
+  meansubject_offer[s] = mean(PTRPart1_data$offer[PTRPart1_data$subjID == subject_IDs[s]], na.rm = T);
+}
 
-# Mean RT 
-#build it into a new dataframe 
+#RT 
+#sqrt it and build it into a new dataframe 
 PTRPart1_data$sqrtrt = sqrt(PTRPart1_data$RT); 
-subjects_meanRT = vector(length = number_of_subjects);
-for(s in 1:number_of_subjects){
-  subjects_meanRT[s] = mean(PTRPart1_data$sqrtrt[PTRPart1_data$subjID == subject_IDs[s]])
-};
+mean_global_RT_part1 = mean(PTRPart1_data$sqrtrt, na.rm = T);
+meansubject_RT_part1 = array(data = NA, dim = number_of_subjects);
 
-#NANs in this, troubleshoot 
+for (s in 1:number_of_subjects){
+  meansubject_RT_part1[s] = mean(PTRPart1_data$sqrtrt[PTRPart1_data$subjID == subject_IDs[s]], na.rm = T);
+}
+
+#Missed Trials per participant in part 1
+total_subject_missed_trials = array(data = NA, dim = number_of_subjects);
+for (s in 1:number_of_subjects){
+  total_subject_missed_trials[s] = sum(is.na(PTRPart1_data$offer[PTRPart1_data$subjID == subject_IDs[s]])
+}
+
+#Part 2 Means 
+# Share/Keep, 
+mean_global_share_keep = mean(PTRPart2_data$share.keep, na.rm = T);
+meansubject_share_keep = array(data = NA, dim=number_of_subjects);
+for (s in 1:number_of_subjects) {
+  meansubject_offer[s] = mean(PTRPart2_data$share.keep[PTRPart2_data$subjID == subject_IDs[s]], na.rm = T);
+}
+# needs to be recoded somehow? 
+
+#RTs
+PTRPart2_data$sqrtrt = sqrt(PTRPart2_data$RT); 
+mean_global_RT_part2 = mean(PTRPart2_data$sqrtrt, na.rm = T);
+meansubject_RT_part2 = array(data = NA, dim = number_of_subjects);
+
+for (s in 1:number_of_subjects){
+  meansubject_RT_part2[s] = mean(PTRPart1_data$sqrtrt[PTRPart1_data$subjID == subject_IDs[s]], na.rm = T);
+}
+
+#Missed Trials per participant in part 2
 
 ### Regressions ###
 # Variables in PTR Part 1 / 2 that might affect offers and share.keep
