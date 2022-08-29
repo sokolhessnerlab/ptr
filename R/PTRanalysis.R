@@ -64,14 +64,14 @@ for (s in 1:number_of_subjects){
 }
 
 #Missed Trials per participant in part 1
-total_subject_missed_trials = array(data = NA, dim = number_of_subjects);
+total_subject_missed_trials_part1 = array(data = NA, dim = number_of_subjects);
 for (s in 1:number_of_subjects){
-  total_subject_missed_trials[s] = sum(is.na(PTRPart1_data$offer[PTRPart1_data$subjID == subject_IDs[s]])
+  total_subject_missed_trials_part1[s] = sum(is.na(PTRPart1_data$offer[PTRPart1_data$subjID == subject_IDs[s]]))
 }
+
 
 #Part 2 Means 
 # Share/Keep, 
-mean_global_share_keep = mean(PTRPart2_data$share.keep, na.rm = T);
 meansubject_share_keep = array(data = NA, dim=number_of_subjects);
 for (s in 1:number_of_subjects) {
   meansubject_offer[s] = mean(PTRPart2_data$share.keep[PTRPart2_data$subjID == subject_IDs[s]], na.rm = T);
@@ -80,7 +80,6 @@ for (s in 1:number_of_subjects) {
 
 #RTs
 PTRPart2_data$sqrtrt = sqrt(PTRPart2_data$RT); 
-mean_global_RT_part2 = mean(PTRPart2_data$sqrtrt, na.rm = T);
 meansubject_RT_part2 = array(data = NA, dim = number_of_subjects);
 
 for (s in 1:number_of_subjects){
@@ -88,6 +87,23 @@ for (s in 1:number_of_subjects){
 }
 
 #Missed Trials per participant in part 2
+total_subject_missed_trials_part2 = array(data = NA, dim = number_of_subjects);
+for (s in 1:number_of_subjects){
+  total_subject_missed_trials_part2[s] = sum(is.na(PTRPart2_data$share.keep[PTRPart2_data$subjID == subject_IDs[s]]))
+}
+
+#Global Mean and RT Part 1 
+mean_global_RT_part1 = mean(PTRPart1_data$sqrtrt, na.rm = T);
+mean_global_offer = mean(PTRPart1_data$offer, na.rm = T);
+
+#Global Mean and RT Part 2
+mean_global_RT_part2 = mean(PTRPart2_data$sqrtrt, na.rm = T);
+mean_global_share_keep = mean(PTRPart2_data$share.keep, na.rm = T);
+
+#Save out into a data frame
+RT_offer_part1 = data.frame(mean_global_RT_part1, mean_global_offer);
+RT_share_keep_part2 = data.frame(mean_global_RT_part2, mean_global_share_keep);
+
 
 ### Regressions ###
 # Variables in PTR Part 1 / 2 that might affect offers and share.keep
