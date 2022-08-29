@@ -44,49 +44,44 @@ subject_demographics = data.frame(subject_IDs, subject_age, subject_gender, subj
 
 #Basic Stats for Part 1 and Part 2 Behavioral Data
 
-#Part 1 Means 
+#Part 1 Means (participant)
 #Offer
-mean_global_offer = mean(PTRPart1_data$offer, na.rm = T);
 meansubject_offer = array(data = NA, dim=number_of_subjects); # create our placeholder
-
 for (s in 1:number_of_subjects) {
   meansubject_offer[s] = mean(PTRPart1_data$offer[PTRPart1_data$subjID == subject_IDs[s]], na.rm = T);
 }
 
-#RT 
+#RTs Part 1 (participant)
 #sqrt it and build it into a new dataframe 
 PTRPart1_data$sqrtrt = sqrt(PTRPart1_data$RT); 
-mean_global_RT_part1 = mean(PTRPart1_data$sqrtrt, na.rm = T);
+hist(PTRPart1_data$sqrtrt); # looks better 
 meansubject_RT_part1 = array(data = NA, dim = number_of_subjects);
-
 for (s in 1:number_of_subjects){
   meansubject_RT_part1[s] = mean(PTRPart1_data$sqrtrt[PTRPart1_data$subjID == subject_IDs[s]], na.rm = T);
 }
 
-#Missed Trials per participant in part 1
+#Missed Trials Part 1 (participant)
 total_subject_missed_trials_part1 = array(data = NA, dim = number_of_subjects);
 for (s in 1:number_of_subjects){
   total_subject_missed_trials_part1[s] = sum(is.na(PTRPart1_data$offer[PTRPart1_data$subjID == subject_IDs[s]]))
 }
 
 
-#Part 2 Means 
+#Part 2 Means (participant) 
 # Share/Keep, 
 meansubject_share_keep = array(data = NA, dim=number_of_subjects);
 for (s in 1:number_of_subjects) {
   meansubject_offer[s] = mean(PTRPart2_data$share.keep[PTRPart2_data$subjID == subject_IDs[s]], na.rm = T);
 }
-# needs to be recoded somehow? 
 
-#RTs
+#RTs Part 2 (participant) 
 PTRPart2_data$sqrtrt = sqrt(PTRPart2_data$RT); 
 meansubject_RT_part2 = array(data = NA, dim = number_of_subjects);
-
 for (s in 1:number_of_subjects){
   meansubject_RT_part2[s] = mean(PTRPart1_data$sqrtrt[PTRPart1_data$subjID == subject_IDs[s]], na.rm = T);
 }
 
-#Missed Trials per participant in part 2
+#Missed Trials Part 2 (participant)
 total_subject_missed_trials_part2 = array(data = NA, dim = number_of_subjects);
 for (s in 1:number_of_subjects){
   total_subject_missed_trials_part2[s] = sum(is.na(PTRPart2_data$share.keep[PTRPart2_data$subjID == subject_IDs[s]]))
@@ -103,6 +98,8 @@ mean_global_share_keep = mean(PTRPart2_data$share.keep, na.rm = T);
 #Save out into a data frame
 RT_offer_part1 = data.frame(mean_global_RT_part1, mean_global_offer);
 RT_share_keep_part2 = data.frame(mean_global_RT_part2, mean_global_share_keep);
+
+#Basic Stats for Qualtrics Data? 
 
 
 ### Regressions ###
