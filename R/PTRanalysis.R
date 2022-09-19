@@ -103,9 +103,19 @@ RT_share_keep_part2 = data.frame(mean_global_RT_part2, mean_global_share_keep);
 
 
 ### Regressions ###
-# Variables in PTR Part 1 / 2 that might affect offers and share.keep
-# partner gender / partner race / partner political affiliation / good bad
-# PART 1 
+# PART 1: Was the offer affected by time? intercept + time 
+fitoffer_time_part1 = lm(PTRPart1_data$offer ~ 1 + sqrtrt, data = PTRPart1_data); #not sure if this is correct 
+summary(fitoffer_time_part1);
+# close to 0, not a big relationship between offer and RT, not much variance, large p-value 
+
+
+# PART 2: Was the share/keep decision affected by time? 
+fitoffer_time_part2 = lm(PTRPart2_data$share.keep ~ 1 + sqrtrt, data = PTRPart2_data); #not sure if this is correct 
+summary(fitoffer_time_part2);
+# close to 0, not a big relationship between share.keep and RT, large p-value 
+
+
+
 fitoffer_race = lm(PTRPart1_data$offer ~ 1 + PR, data = PTRPart1_data); # not sure what do after the ~ (0 or 1)? 
 summary(fitoffer_race);
 
