@@ -114,8 +114,12 @@ fitoffer_time_part2 = lm(PTRPart2_data$share.keep ~ 1 + sqrtrt, data = PTRPart2_
 summary(fitoffer_time_part2);
 # close to 0, not a big relationship between share.keep and RT, large p-value 
 
+#PART 1: Was the offer affected by good vs. bad reciprocation rates? 
+fitoffer_goodbad_part1 = lm(PTRPart1_data$offer ~ 1 + PRec, data = PTRPart1_data); #might need to recode good/bad 
+summary(fitoffer_goodbad_part1);
+# p-value = 0.02, 
 
-
+#IGNORE THIS BELOW FOR NOW 
 fitoffer_race = lm(PTRPart1_data$offer ~ 1 + PR, data = PTRPart1_data); # not sure what do after the ~ (0 or 1)? 
 summary(fitoffer_race);
 
